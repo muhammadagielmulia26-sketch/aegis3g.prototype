@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOULCIUS - Safe Space & Empathetic AI</title>
+  <title>AEGIS - Gather. Guide. Guard.</title>
+  <link rel="icon" href="data:,">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,24 +14,35 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- React & Babel CDNs -->
+  <!-- React & Babel CDNs (Dijalankan tanpa import ES6) -->
+  <!-- PENTING: Versi Babel Standalone dikunci (pinned) ke 7.24.7.
+       Versi "latest" dari unpkg pernah mengubah cara mendeteksi <script type="text/babel">
+       sehingga dianggap sebagai ES module dan memicu error:
+       "Cannot use import statement outside a module". Dengan versi yang dikunci,
+       perilaku transformasi script tetap konsisten dan tidak akan mendadak berubah. -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Lucide Icons (Web Script) -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          colors: {
+            aegis: {
+              sage: '#8FA382',
+              blue: '#203C5E',
+              teal: '#4E7A8A',
+              dark: '#14263C',
+              light: '#F4F7F5',
+            }
+          },
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
           },
           animation: {
-            fadeIn: 'fadeIn 0.4s ease-out forwards',
-            slideUp: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            fadeIn: 'fadeIn 0.3s ease-out forwards',
+            slideUp: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           },
           keyframes: {
             fadeIn: {
@@ -38,7 +50,7 @@
               '100%': { opacity: '1', transform: 'translateY(0)' },
             },
             slideUp: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '0%': { opacity: '0', transform: 'translateY(16px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' },
             }
           }
@@ -48,11 +60,11 @@
   </script>
 
   <style>
-    /* Transisi Halus pada Seluruh Elemen */
+    /* Transisi mikro yang halus */
     * {
-      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    /* Scrollbar Styling */
+    /* Scrollbar modern minimalis */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -69,99 +81,168 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased font-sans">
+<body class="bg-[#F4F7F5] text-slate-800 antialiased font-sans">
 
   <div id="root"></div>
 
-  <script type="text/babel">
+  <script type="text/babel" data-presets="react">
+    // Menggunakan variabel global dari CDN tanpa statement 'import'
     const { useState, useEffect } = React;
 
-    // Komponen Ikon Lucide untuk React di dalam berkas HTML tunggal
-    function LucideIcon({ name, className = "w-5 h-5" }) {
-      useEffect(() => {
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
-      }, [name]);
-      return <i data-lucide={name} className={className}></i>;
+    // Komponen Ikon SVG Inline terenkapsulasi
+    function SvgIcon({ name, className = "w-5 h-5" }) {
+      const icons = {
+        'heart': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />,
+        'shield': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />,
+        'search': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />,
+        'alert-triangle': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />,
+        'book-open': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />,
+        'message-square': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />,
+        'user': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />,
+        'users': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />,
+        'check-circle-2': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />,
+        'arrow-right': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />,
+        'chevron-right': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />,
+        'send': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />,
+        'sparkles': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />,
+        'phone-call': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321 1.05l-1.3 1.3a13.447 13.447 0 005.29 5.29l1.3-1.3a1 1 0 011.05-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />,
+        'activity': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />,
+        'thumbs-up': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.722l1.38-9a2 2 0 00-2-2.278H14z" />,
+        'x': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />,
+        'refresh-cw': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.27 15" />,
+        'calendar': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      };
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {icons[name] || <path d="M12 2v20M2 12h20" />}
+        </svg>
+      );
     }
 
-    // Komponen Logo Resmi SOULCIUS (Sesuai "ChatGPT Image Jun 5, 2026, 05_57_05 PM.png")
-    function SoulciusLogo({ className = "w-10 h-10", showText = false }) {
+    // Komponen Logo SVG Presisi Sesuai dengan "AEGIS COY.png"
+    function AegisLogo({ className = "w-11 h-11", showText = false }) {
       return (
-        <div className="flex items-center space-x-3 transition-transform duration-300 hover:scale-[1.02]">
-          <svg className={className} viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Background Circle for contrast & elegance */}
-            <circle cx="250" cy="250" r="230" fill="#F8FAFC" />
-            
-            {/* Top-Left Sage Green Swoosh resembling upper half of S and a caring embrace */}
+        <div className="flex items-center space-x-3 transition-transform duration-300 hover:scale-[1.03]">
+          {/* Menggunakan AEGIS COY.png secara langsung dengan fallback SVG yang sangat presisi */}
+          <img 
+            src="AEGIS COY.png" 
+            alt="AEGIS Logo" 
+            className={`${className} object-contain`} 
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.classList.remove('hidden');
+            }}
+          />
+          <svg className={`${className} hidden`} viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Kaki Kiri 'A' - Sage Green (#8FA382) */}
             <path 
-              d="M320 120 C 230 90, 160 140, 160 220 C 160 270, 200 300, 260 300 C 310 300, 320 270, 290 260 C 250 250, 210 230, 210 190 C 210 150, 260 140, 310 170 C 330 180, 340 160, 320 120 Z" 
-              fill="#8DA382" 
+              d="M140 330 C130 260, 195 120, 248 78 C251 74, 256 76, 256 82 C250 140, 220 230, 252 270 C200 280, 150 310, 140 330 Z" 
+              fill="#8FA382" 
             />
             
-            {/* Bottom-Right Steel Blue Swoosh resembling lower half of S and a supportive cradle */}
+            {/* Kaki Kanan 'A' - Deep Navy Blue (#203C5E) */}
             <path 
-              d="M180 380 C 270 410, 340 360, 340 280 C 340 230, 300 200, 240 200 C 190 200, 180 230, 210 240 C 250 250, 290 270, 290 310 C 290 350, 240 360, 190 330 C 170 320, 160 340, 180 380 Z" 
-              fill="#3B5F8F" 
+              d="M246 78 C252 70, 262 70, 268 78 C285 105, 350 280, 350 365 C350 380, 340 395, 325 395 C310 395, 300 375, 296 345 C286 265, 252 195, 252 165 Z" 
+              fill="#203C5E" 
             />
             
-            {/* Two Dots representing the two individuals (hearer and seeker) in connection */}
-            <circle cx="190" cy="270" r="28" fill="#8DA382" />
-            <circle cx="310" cy="230" r="28" fill="#3B5F8F" />
+            {/* Wadah Gelombang Melengkung di Bagian Bawah Globe */}
+            <path 
+              d="M180 320 C180 320, 230 270, 290 310 C310 325, 315 350, 290 375 C265 400, 210 405, 180 320 Z" 
+              fill="#203C5E" 
+              opacity="0.1" 
+            />
+            
+            {/* Gelombang 1: Light Sage Green (#BAC9B3) */}
+            <path 
+              d="M182 320 C220 290, 265 305, 298 338 C288 355, 270 370, 250 370 C210 370, 192 345, 182 320 Z" 
+              fill="#BAC9B3" 
+            />
+            
+            {/* Gelombang 2: Slate Teal (#4E7A8A) */}
+            <path 
+              d="M192 342 C225 315, 268 328, 294 358 C280 375, 260 385, 238 385 C210 385, 198 368, 192 342 Z" 
+              fill="#4E7A8A" 
+            />
+            
+            {/* Gelombang 3: Navy Blue Terbawah (#203C5E) */}
+            <path 
+              d="M205 368 C225 350, 255 355, 275 375 C260 388, 245 392, 230 392 C215 392, 208 382, 205 368 Z" 
+              fill="#203C5E" 
+            />
+            
+            {/* Jalur Berkelok Putih di Tengah (S-Path) */}
+            <path 
+              d="M242 195 C222 195, 210 215, 210 230 C210 255, 240 265, 255 272 C275 280, 305 295, 308 320" 
+              stroke="white" 
+              strokeWidth="12" 
+              strokeLinecap="round" 
+            />
+            
+            {/* Titik Lingkaran di Puncak Jalur (Sage Green) */}
+            <circle cx="242" cy="170" r="20" fill="#8FA382" />
           </svg>
+          
           {showText && (
             <div className="flex flex-col select-none">
-              <span className="text-2xl font-bold tracking-widest text-[#3B5F8F] font-sans">
-                SOUL<span className="text-[#8DA382]">CIUS</span>
+              <span className="text-3xl font-extrabold tracking-[0.1em] font-sans leading-none flex items-center">
+                <span className="text-[#8FA382]">A</span>
+                <span className="text-[#203C5E] ml-0.5">EG</span>
+                <span className="relative text-[#203C5E]">
+                  I
+                  {/* Titik sage green di atas huruf I */}
+                  <span className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-2.5 h-2.5 bg-[#8FA382] rounded-full animate-pulse"></span>
+                </span>
+                <span className="text-[#203C5E]">S</span>
               </span>
-              <span className="text-[10px] tracking-[0.2em] font-semibold text-slate-500 uppercase leading-none mt-0.5">
-                hear.support.recover
-              </span>
+              <div className="flex items-center space-x-1 mt-1.5 border-t border-b border-slate-200/60 py-1">
+                <span className="text-[9.5px] tracking-[0.16em] font-bold text-[#203C5E] uppercase leading-none">
+                  — Gather. Guide. Guard. —
+                </span>
+              </div>
             </div>
           )}
         </div>
       );
     }
 
-    // Mock Data Konseptual SOULCIUS dengan Identitas Tim Inisiator (Teknik & Adbis)
     const SOBAT_SEBAYA = [
       { 
         id: 'sb-1', 
         name: 'Muhammad Agiel Mulia', 
         major: 'Teknik Sipil 2024 / Inisiator', 
-        bio: 'Siap mendengarkan ceritamu dengan penuh empati dan membantumu menemukan kembali rasa aman di kampus tanpa rasa takut dihakimi.', 
+        bio: 'Siap mendengar keluh kesahmu tanpa menghakimi. Aku di sini untuk menemani dan membantumu kembali menemukan rasa aman di kampus.', 
         avatar: '🦊', 
         rating: 5.0, 
-        casesSolved: 12,
+        casesSolved: 14,
         badge: 'Sobat Sebaya'
       },
       { 
         id: 'sb-2', 
         name: 'Prayuda Kamarullah', 
         major: 'Administrasi Bisnis 2024 / Inisiator', 
-        bio: 'Percayalah bahwa setiap perasaanmu itu valid dan berharga. Aku di sini untuk menemani dan mendengar keluh kesahmu secara rahasia.', 
+        bio: 'Percayalah bahwa setiap perasaanmu berharga dan valid. Kamu aman bercerita apa saja denganku secara rahasia.', 
         avatar: '🐻', 
         rating: 5.0, 
-        casesSolved: 15,
+        casesSolved: 18,
         badge: 'Sobat Sebaya' 
       },
       { 
         id: 'sb-3', 
         name: 'Muhammad Abdus Sattar Hamid BB', 
         major: 'Teknik Kimia 2023 / Inisiator', 
-        bio: 'Jangan memendam beban kecemasan sendirian. Mari kita urai pelan-pelan bersama di ruang aman ini dengan santai dan tenang.', 
+        bio: 'Jangan memikul kecemasan sendirian. Mari kita urai dan bicarakan pelan-pelan bersama di ruang aman ini dengan santai.', 
         avatar: '🐨', 
         rating: 5.0, 
-        casesSolved: 11,
+        casesSolved: 12,
         badge: 'Sobat Sebaya'
       },
     ];
 
     const ARTICLES = [
-      { id: 'art-1', title: 'Mengenali Perbedaan Sedih Biasa vs Depresi Ringan', category: 'Mental Health Literacy', readTime: '3 Menit', likes: 124 },
-      { id: 'art-2', title: 'Bagaimana Menolak Victim Blaming di Sekitarmu', category: 'Campaign & Advocacy', readTime: '5 Menit', likes: 215 },
-      { id: 'art-3', title: '5 Coping Strategy Sederhana saat Panic Attack Melanda', category: 'Coping Strategy', readTime: '4 Menit', likes: 189 },
+      { id: 'art-1', title: 'Mengenali Perbedaan Sedih Biasa vs Depresi Ringan', category: 'Mental Health Literacy', readTime: '3 Menit', likes: 142 },
+      { id: 'art-2', title: 'Bagaimana Menolak Victim Blaming di Sekitarmu', category: 'Campaign & Advocacy', readTime: '5 Menit', likes: 236 },
+      { id: 'art-3', title: '5 Coping Strategy Sederhana saat Panic Attack Melanda', category: 'Coping Strategy', readTime: '4 Menit', likes: 198 },
     ];
 
     const CASE_SIMULATIONS = [
@@ -183,11 +264,11 @@
       const [simScore, setSimScore] = useState(null);
       const [selectedSimOption, setSelectedSimOption] = useState(null);
       const [chatMessages, setChatMessages] = useState([
-        { sender: 'system', text: 'Selamat datang di Ruang Aman SOBOT! Saya adalah asisten AI pendampingmu. Ceritakan apa yang sedang kamu rasakan tanpa takut dihakimi.' }
+        { sender: 'system', text: 'Selamat datang di Ruang Aman EIRA! Saya adalah asisten AI pendampingmu. Ceritakan apa yang sedang kamu rasakan tanpa takut dihakimi.' }
       ]);
       const [inputValue, setInputValue] = useState('');
       const [peerChatMessages, setPeerChatMessages] = useState([
-        { sender: 'peer', text: 'Halo! Aku Sobat Sebaya-mu hari ini. Silakan ceritakan apa saja, identitasmu aman di sini.' }
+        { sender: 'peer', text: 'Halo! Aku Sobat Sebaya-mu hari ini. Silakan ceritakan apa saja, identitasmu aman di sini bersama tim AEGIS.' }
       ]);
       const [peerInput, setPeerInput] = useState('');
       const [selectedPeer, setSelectedPeer] = useState(null);
@@ -197,22 +278,19 @@
       const [bookingTime, setBookingTime] = useState('');
       const [isBooked, setIsBooked] = useState(false);
       const [communityPosts, setCommunityPosts] = useState([
-        { id: 'post-1', author: 'Anonim - Angkatan 22', content: 'Terima kasih SOULCIUS, akhirnya aku berani cerita setelah setahun memendam rasa cemas akibat dipojokkan rekan kerja organisasi.', likes: 42, time: '2 jam yang lalu' },
-        { id: 'post-2', author: 'Anonim - Angkatan 23', content: 'Rasanya lega sekali saat Sobat Sebaya memvalidasi perasaanku dan tidak bilang kalau aku "baperan". Kalian hebat!', likes: 56, time: '5 jam yang lalu' }
+        { id: 'post-1', author: 'Anonim - Angkatan 22', content: 'Terima kasih AEGIS, akhirnya aku berani cerita setelah setahun memendam rasa cemas akibat dipojokkan rekan kerja organisasi.', likes: 45, time: '2 jam yang lalu' },
+        { id: 'post-2', author: 'Anonim - Angkatan 23', content: 'Rasanya lega sekali saat Sobat Sebaya memvalidasi perasaanku dan tidak bilang kalau aku "baperan". Kalian hebat!', likes: 62, time: '5 jam yang lalu' }
       ]);
       const [newPostText, setNewPostText] = useState('');
       const [dailyMood, setDailyMood] = useState(null);
       const [assessmentFinished, setAssessmentFinished] = useState(false);
-
-      // Replacement for browser alert() dialogs
       const [customNotification, setCustomNotification] = useState(null);
 
       const triggerNotification = (type, title, message) => {
         setCustomNotification({ type, title, message });
       };
 
-      // SOBOT AI Chat Bot Logic
-      const handleSendSobot = () => {
+      const handleSendEira = () => {
         if (!inputValue.trim()) return;
         const userMsg = { sender: 'user', text: inputValue };
         setChatMessages(prev => [...prev, userMsg]);
@@ -222,18 +300,19 @@
         setTimeout(() => {
           let botReply = '';
           const text = currentInput.toLowerCase();
-          if (text.includes('sedih') || text.includes('cemas') || text.includes('takut')) {
-            botReply = 'Perasaan sedih dan cemas yang kamu alami sangat valid. Kamu tidak sendirian. Apakah kamu bersedia mencoba mengisi menu "DETECT" di atas untuk mengetahui tingkat risikomu saat ini?';
-          } else if (text.includes('victim blaming') || text.includes('salah')) {
-            botReply = 'Ingat ya, kekerasan psikis yang terjadi bukanlah kesalahanmu. Perilaku menyalahkan korban (victim blaming) adalah salah satu fokus edukasi kami agar lingkungan kampus lebih aman.';
+          if (text.includes('sedih') || text.includes('cemas') || text.includes('takut') || text.includes('stres')) {
+            botReply = 'Perasaan sedih, cemas, atau tertekan yang kamu rasakan sepenuhnya valid. Kamu tidak sendirian di sini. Bersediakah kamu mengisi menu "Layanan DETECT" di atas untuk membantu memetakan tingkat kecemasanmu saat ini secara ilmiah?';
+          } else if (text.includes('victim blaming') || text.includes('salah') || text.includes('dituduh')) {
+            botReply = 'Ingatlah selalu, kekerasan psikis atau perlakuan tidak adil yang terjadi bukanlah kesalahan batinmu. Perilaku menyalahkan korban (*victim blaming*) adalah fokus edukasi kami agar lingkungan kampus lebih berempati.';
+          } else if (text.includes('eira') || text.includes('nama')) {
+            botReply = 'Halo! Aku EIRA (Edukatif, Inspiratif, Responsif, Aman), asisten virtual pendamping ruang amanmu. Aku di sini untuk membimbingmu kapan pun kamu membutuhkan kawan bicara.';
           } else {
-            botReply = 'Terima kasih sudah berbagi denganku. Di SOULCIUS, kami berkomitmen menjaga kerahasiaanmu. Jika kamu membutuhkan telinga manusia yang responsif, kamu bisa bergeser ke menu "SUPPORT" untuk mengobrol dengan Sobat Sebaya.';
+            botReply = 'Terima kasih telah berbagi cerita denganku. Di AEGIS, kami berkomitmen menjaga kerahasiaanmu 100%. Jika kamu membutuhkan teman diskusi manusia yang responsif, kamu bisa bergeser ke menu "Ruang SUPPORT" untuk mengobrol dengan Sobat Sebaya pilihanmu.';
           }
           setChatMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
         }, 900);
       };
 
-      // Peer Chat Bot Logic
       const handleSendPeer = () => {
         if (!peerInput.trim()) return;
         const userMsg = { sender: 'user', text: peerInput };
@@ -243,12 +322,11 @@
         setTimeout(() => {
           setPeerChatMessages(prev => [...prev, { 
             sender: 'peer', 
-            text: 'Terima kasih sudah mau berbagi denganku. Ceritamu sepenuhnya aman. Aku mendengarkanmu dengan penuh empati. Kita bisa diskusikan bersama langkah nyaman selanjutnya, ya.' 
+            text: 'Terima kasih sudah mau berbagi denganku. Ceritamu sepenuhnya aman dan terenkripsi di sistem AEGIS. Aku siap terus mendengarkanmu.' 
           }]);
         }, 1100);
       };
 
-      // Assessment Logic
       const handleAssessmentAnswer = (questionId, score) => {
         setAssessmentAnswers(prev => ({ ...prev, [questionId]: score }));
       };
@@ -285,7 +363,6 @@
         setAssessmentFinished(false);
       };
 
-      // Handle Post Community
       const handleAddPost = () => {
         if (!newPostText.trim()) return;
         const newPost = {
@@ -300,11 +377,10 @@
         triggerNotification(
           'success',
           'Pesan Terkirim',
-          'Terima kasih telah berbagi! Pesan anonim Anda berhasil diterbitkan ke komunitas setelah melewati sistem moderasi otomatis SOULCIUS.'
+          'Terima kasih telah berbagi! Pesan anonim Anda berhasil diterbitkan ke komunitas setelah melewati sistem moderasi otomatis AEGIS.'
         );
       };
 
-      // Handle Booking Sesi
       const handleBooking = () => {
         if (!selectedPeer || !bookingDate || !bookingTime) {
           triggerNotification(
@@ -322,7 +398,6 @@
         );
       };
 
-      // Handle Rujukan Pengaduan PPK
       const handleTicketGeneration = () => {
         triggerNotification(
           'success',
@@ -334,18 +409,19 @@
       return (
         <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col transition-colors duration-500">
           
-          {/* CUSTOM ACCESSIBLE MODAL NOTIFICATION (No native alert) */}
+          {}
+          {/* NOTIFIKASI KUSTOM MODAL */}
           {customNotification && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300">
-              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 transform scale-100 transition-transform duration-300 animate-fadeIn">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#14263C]/40 backdrop-blur-sm transition-opacity duration-300 animate-fadeIn">
+              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 transform scale-100 transition-all duration-300">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      customNotification.type === 'success' ? 'bg-[#8DA382]/20 text-[#8DA382]' :
+                      customNotification.type === 'success' ? 'bg-aegis-sage/20 text-aegis-sage' :
                       customNotification.type === 'warning' ? 'bg-amber-100 text-amber-700' :
                       'bg-rose-100 text-rose-600'
                     }`}>
-                      <LucideIcon name={customNotification.type === 'success' ? 'check-circle-2' : 'alert-triangle'} className="w-5 h-5" />
+                      <SvgIcon name={customNotification.type === 'success' ? 'check-circle-2' : 'alert-triangle'} className="w-5 h-5" />
                     </div>
                     <h3 className="text-lg font-bold text-slate-800">{customNotification.title}</h3>
                   </div>
@@ -353,14 +429,14 @@
                     onClick={() => setCustomNotification(null)}
                     className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-50 transition-colors"
                   >
-                    <LucideIcon name="x" className="w-5 h-5" />
+                    <SvgIcon name="x" className="w-5 h-5" />
                   </button>
                 </div>
                 <p className="text-sm text-slate-600 mt-4 leading-relaxed">{customNotification.message}</p>
                 <div className="mt-6 flex justify-end">
                   <button 
                     onClick={() => setCustomNotification(null)}
-                    className="px-5 py-2.5 bg-[#3B5F8F] hover:bg-[#2D4A70] text-white font-semibold rounded-xl text-xs transition-all duration-200 shadow-sm active:scale-95"
+                    className="px-5 py-2.5 bg-aegis-blue hover:bg-aegis-dark text-white font-semibold rounded-xl text-xs transition-all duration-200 shadow-sm active:scale-95"
                   >
                     Mengerti
                   </button>
@@ -369,14 +445,15 @@
             </div>
           )}
 
-          {/* HEADER BAR WITH SVG LOGO */}
+          {}
+          {/* HEADER BAR */}
           <header className="bg-white border-b border-slate-150 sticky top-0 z-40 shadow-sm transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
               <div className="cursor-pointer" onClick={() => setActiveTab('home')}>
-                <SoulciusLogo className="w-12 h-12" showText={true} />
+                <AegisLogo className="w-12 h-12" showText={true} />
               </div>
               
-              <nav className="hidden md:flex space-x-1">
+              <nav className="hidden lg:flex space-x-1">
                 {[
                   { id: 'home', label: 'Dashboard' },
                   { id: 'aware', label: 'Pilar AWARE' },
@@ -390,7 +467,7 @@
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all duration-300 transform active:scale-95 ${
                       activeTab === tab.id
-                        ? 'bg-[#3B5F8F]/10 text-[#3B5F8F] shadow-sm font-bold scale-[1.02]'
+                        ? 'bg-aegis-blue/10 text-aegis-blue shadow-sm font-bold scale-[1.02]'
                         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
@@ -404,14 +481,15 @@
                   className="text-xs bg-rose-50 text-rose-600 px-3.5 py-2 rounded-full font-bold border border-rose-100 flex items-center gap-1.5 cursor-pointer hover:bg-rose-100 transition-all duration-200 active:scale-95 shadow-sm"
                   onClick={() => setActiveTab('protect')}
                 >
-                  <LucideIcon name="alert-triangle" className="w-3.5 h-3.5" /> Darurat Kampus
+                  <SvgIcon name="alert-triangle" className="w-3.5 h-3.5" /> Darurat Kampus
                 </span>
               </div>
             </div>
           </header>
 
+          {}
           {/* MOBILE NAV BAR */}
-          <div className="md:hidden bg-white border-b border-slate-200 overflow-x-auto flex whitespace-nowrap py-3 px-4 space-x-2 scrollbar-none shadow-inner">
+          <div className="lg:hidden bg-white border-b border-slate-200 overflow-x-auto flex whitespace-nowrap py-3 px-4 space-x-2 scrollbar-none shadow-inner">
             {[
               { id: 'home', label: 'Dashboard' },
               { id: 'aware', label: 'Pilar AWARE' },
@@ -425,7 +503,7 @@
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 active:scale-90 ${
                   activeTab === tab.id 
-                    ? 'bg-[#3B5F8F] text-white shadow-md' 
+                    ? 'bg-aegis-blue text-white shadow-md' 
                     : 'bg-slate-100 text-slate-600'
                 }`}
               >
@@ -434,37 +512,37 @@
             ))}
           </div>
 
-          {/* MAIN CONTENT AREA */}
+          {}
           <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
-            {/* PILAR 0: DASHBOARD / HOME */}
+            {/* TAB: DASHBOARD */}
             {activeTab === 'home' && (
               <div className="space-y-8 animate-fadeIn transition-opacity duration-500">
-                {/* Hero Banner with Integrated Colors & Slogan */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3B5F8F] via-[#2F4D75] to-[#1F3452] text-white p-8 md:p-12 shadow-xl border border-slate-800">
+                {/* Hero Banner */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-aegis-blue via-aegis-teal to-aegis-dark text-white p-8 md:p-12 shadow-xl border border-slate-800">
                   <div className="absolute right-0 top-0 opacity-10 transform translate-x-12 -translate-y-12">
-                    <LucideIcon name="heart" className="w-96 h-96" />
+                    <SvgIcon name="heart" className="w-96 h-96" />
                   </div>
                   <div className="relative z-10 max-w-2xl">
-                    <span className="bg-[#8DA382]/30 text-[#D2DFCE] px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase border border-[#8DA382]/40 shadow-inner">
-                      hear • support • recover
+                    <span className="bg-aegis-sage/30 text-[#DDF0ED] px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase border border-aegis-sage/40 shadow-inner">
+                      gather • guide • guard ◡̈
                     </span>
                     <h1 className="text-3xl md:text-5xl font-extrabold mt-5 tracking-tight leading-tight">
                       Ruang Aman Digital untuk Jiwa yang Berharga
                     </h1>
                     <p className="text-slate-100 text-base md:text-lg mt-4 leading-relaxed font-light">
-                      SOULCIUS hadir menjembatani kesenjangan perlindungan kekerasan psikis di lingkungan kampus. Dapatkan edukasi, uji kecemasan secara mandiri, hubungi pendamping mahasiswa tepercaya, serta hubungi satgas profesional tanpa rasa bersalah.
+                      AEGIS hadir menjembatani kesenjangan perlindungan kekerasan psikis di lingkungan kampus. Dapatkan edukasi empati, uji kecemasan secara mandiri bersama asisten virtual <strong className="text-aegis-sage">EIRA</strong>, hubungi pendamping mahasiswa tepercaya, serta hubungi satgas profesional tanpa rasa bersalah.
                     </p>
                     <div className="flex flex-wrap gap-4 mt-8">
                       <button 
                         onClick={() => setActiveTab('detect')} 
-                        className="bg-white text-[#3B5F8F] hover:bg-slate-50 transition-all duration-300 font-bold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 transform active:scale-95"
+                        className="bg-white text-aegis-blue hover:bg-slate-50 transition-all duration-300 font-bold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 transform active:scale-95"
                       >
-                        Mulai Deteksi Mandiri <LucideIcon name="arrow-right" className="w-4 h-4" />
+                        Mulai Deteksi Mandiri <SvgIcon name="arrow-right" className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => setActiveTab('aware')} 
-                        className="bg-[#8DA382] hover:bg-[#7D9372] text-white transition-all duration-300 font-semibold px-6 py-3.5 rounded-xl border border-white/20 transform active:scale-95 shadow-md"
+                        className="bg-aegis-sage hover:bg-[#7D9171] text-white transition-all duration-300 font-semibold px-6 py-3.5 rounded-xl border border-white/20 transform active:scale-95 shadow-md"
                       >
                         Pelajari Mengapa Kami Peduli
                       </button>
@@ -472,17 +550,17 @@
                   </div>
                 </div>
 
-                {/* Alur Sistem & Komponen Utama */}
+                {/* Ekosistem Alur Layanan */}
                 <div>
                   <h2 className="text-2xl font-bold text-slate-800 tracking-tight mb-2 flex items-center gap-2">
-                    <SoulciusLogo className="w-7 h-7" /> Mengapa Memilih SOULCIUS?
+                    <AegisLogo className="w-8 h-8" /> Mengapa Memilih AEGIS?
                   </h2>
                   <p className="text-slate-500 text-sm mb-6">Sebuah ekosistem perlindungan holistik dan berlapis demi pemulihan psikologis korban.</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                     {[
-                      { step: '01', title: 'AWARE', desc: 'Konten mikro, simulasi respon empati, kuis, dan konsultasi interaktif bersama asisten AI.', bg: 'bg-[#8DA382]/5 border-[#8DA382]/20 hover:border-[#8DA382]', icon: 'book-open', color: 'text-[#8DA382]', tab: 'aware' },
-                      { step: '02', title: 'DETECT', desc: 'Identifikasi tingkat risiko psikis dan rasa tidak nyaman secara rahasia dan terstruktur.', bg: 'bg-[#3B5F8F]/5 border-[#3B5F8F]/20 hover:border-[#3B5F8F]', icon: 'search', color: 'text-[#3B5F8F]', tab: 'detect' },
+                      { step: '01', title: 'AWARE', desc: 'Konten mikro, simulasi respon empati, kuis, dan konsultasi interaktif bersama asisten AI EIRA.', bg: 'bg-aegis-sage/5 border-aegis-sage/20 hover:border-aegis-sage', icon: 'book-open', color: 'text-aegis-sage', tab: 'aware' },
+                      { step: '02', title: 'DETECT', desc: 'Identifikasi tingkat risiko psikis dan rasa tidak nyaman secara rahasia dan terstruktur.', bg: 'bg-aegis-blue/5 border-aegis-blue/20 hover:border-aegis-blue', icon: 'search', color: 'text-aegis-blue', tab: 'detect' },
                       { step: '03', title: 'SUPPORT', desc: 'Hubungi kawan cerita terlatih (Peer Support Student) dalam mode anonim yang nyaman.', bg: 'bg-purple-50 border-purple-100 hover:border-purple-400', icon: 'message-square', color: 'text-purple-700', tab: 'support' },
                       { step: '04', title: 'PROTECT', desc: 'Sistem rujukan aman ke Psikolog UPT atau Satgas PPK Universitas untuk perlindungan hukum.', bg: 'bg-rose-50 border-rose-100 hover:border-rose-400', icon: 'shield', color: 'text-rose-700', tab: 'protect' },
                       { step: '05', title: 'RECOVER', desc: 'Pantau kebugaran emosi harian, unduh panduan mandiri, dan bagikan dukungan di forum aman.', bg: 'bg-teal-50 border-teal-100 hover:border-teal-400', icon: 'users', color: 'text-teal-700', tab: 'recovery' },
@@ -496,13 +574,13 @@
                           <div>
                             <div className="flex items-center justify-between mb-4">
                               <span className="text-xs font-bold text-slate-400">{item.step}</span>
-                              <LucideIcon name={item.icon} className={`w-6 h-6 ${item.color}`} />
+                              <SvgIcon name={item.icon} className={`w-6 h-6 ${item.color}`} />
                             </div>
                             <h3 className={`font-bold text-base ${item.color} tracking-wider`}>{item.title}</h3>
                             <p className="text-xs text-slate-600 mt-2 leading-relaxed">{item.desc}</p>
                           </div>
                           <div className="mt-4 flex items-center text-[10px] font-bold tracking-wider text-slate-500 uppercase">
-                            Buka Ruang <LucideIcon name="chevron-right" className="w-3.5 h-3.5 ml-1" />
+                            Buka Ruang <SvgIcon name="chevron-right" className="w-3.5 h-3.5 ml-1" />
                           </div>
                         </div>
                       );
@@ -510,13 +588,14 @@
                   </div>
                 </div>
 
-                {/* Quick Helper Widget / SOBOT */}
+                {}
+                {/* Dashboard Widgets */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
                     <div>
                       <div className="flex items-center space-x-2 mb-4">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#8DA382] animate-pulse"></div>
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#3B5F8F]">Prinsip Kami</span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-aegis-sage animate-pulse"></div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-aegis-blue">Prinsip Kami</span>
                       </div>
                       <h3 className="text-xl font-bold text-slate-800">"Kekerasan psikis tidak meninggalkan luka fisik, namun melumpuhkan masa depan."</h3>
                       <p className="text-slate-500 text-sm mt-3 leading-relaxed">
@@ -529,26 +608,26 @@
                         <span className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-white text-xs">🐻</span>
                         <span className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center border-2 border-white text-xs">🐨</span>
                       </div>
-                      <span className="text-xs text-slate-500 font-medium">3 Konselor Sebaya sedang bersiap mendampingi Anda tanpa mencatat nama asli Anda.</span>
+                      <span className="text-xs text-slate-500 font-medium">3 Konselor Sebaya (Tim Inisiator) bersiap mendampingi Anda tanpa mencatat identitas asli Anda.</span>
                     </div>
                   </div>
 
-                  {/* SOBOT Quick Chat */}
+                  {/* EIRA Quick Chat Widget */}
                   <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[320px]">
-                    <div className="bg-[#3B5F8F] p-4 text-white flex items-center justify-between">
+                    <div className="bg-aegis-blue p-4 text-white flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-[#2F4D75] flex items-center justify-center text-base">🤖</div>
+                        <div className="w-8 h-8 rounded-full bg-aegis-dark flex items-center justify-center text-xs font-bold text-aegis-sage">EIRA</div>
                         <div>
-                          <h4 className="font-bold text-sm">SOBOT Asisten</h4>
-                          <p className="text-[10px] text-slate-200">Asisten Edukasi AI</p>
+                          <h4 className="font-bold text-sm">EIRA</h4>
+                          <p className="text-[10px] text-slate-200">Asisten Pendamping AI</p>
                         </div>
                       </div>
-                      <span className="bg-[#8DA382] text-[10px] px-2 py-0.5 rounded-full font-semibold">Online</span>
+                      <span className="bg-aegis-sage text-[10px] px-2 py-0.5 rounded-full font-semibold animate-pulse">Online</span>
                     </div>
                     <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
                       {chatMessages.slice(-2).map((msg, index) => (
                         <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`p-3 rounded-2xl max-w-[85%] ${msg.sender === 'user' ? 'bg-[#3B5F8F] text-white rounded-br-none' : 'bg-slate-100 text-slate-800 rounded-bl-none'}`}>
+                          <div className={`p-3 rounded-2xl max-w-[85%] ${msg.sender === 'user' ? 'bg-aegis-blue text-white rounded-br-none' : 'bg-slate-100 text-slate-800 rounded-bl-none'}`}>
                             {msg.text}
                           </div>
                         </div>
@@ -559,12 +638,12 @@
                         type="text" 
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Tanya SOBOT tentang perlindungan psikis..."
-                        className="flex-1 text-xs border border-slate-200 rounded-full px-3 py-2 focus:outline-none focus:border-[#3B5F8F]"
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendSobot()}
+                        placeholder="Tanya EIRA tentang cara menangani cemas..."
+                        className="flex-1 text-xs border border-slate-200 rounded-full px-3 py-2 focus:outline-none focus:border-aegis-blue"
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendEira()}
                       />
-                      <button onClick={handleSendSobot} className="bg-[#3B5F8F] text-white p-2 rounded-full hover:bg-[#2F4D75] transition-colors active:scale-90">
-                        <LucideIcon name="send" className="w-3.5 h-3.5" />
+                      <button onClick={handleSendEira} className="bg-aegis-blue text-white p-2 rounded-full hover:bg-aegis-dark transition-colors active:scale-90">
+                        <SvgIcon name="send" className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -572,11 +651,12 @@
               </div>
             )}
 
-            {/* PILAR AWARE */}
+            {}
+            {/* TAB: PILAR AWARE */}
             {activeTab === 'aware' && (
               <div className="space-y-8 animate-fadeIn transition-all">
                 <div>
-                  <span className="bg-[#8DA382]/20 text-[#5F7355] text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-[#8DA382]/30">
+                  <span className="bg-aegis-sage/20 text-[#5F7055] text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-aegis-sage/30">
                     AWARE — Pahami & Edukasi Diri
                   </span>
                   <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Membangun Sikap Empati</h2>
@@ -588,34 +668,34 @@
                   {/* Micro Learning Grid */}
                   <div className="lg:col-span-2 space-y-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                      <LucideIcon name="book-open" className="w-5 h-5 text-[#8DA382]" /> Bahan Bacaan Edukasi (3-5 Menit)
+                      <SvgIcon name="book-open" className="w-5 h-5 text-aegis-sage" /> Bahan Bacaan Edukasi (3-5 Menit)
                     </h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {ARTICLES.map((article) => (
                         <div key={article.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.01] flex flex-col justify-between">
                           <div>
-                            <span className="bg-[#8DA382]/10 text-[#5F7355] text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border border-[#8DA382]/20">{article.category}</span>
+                            <span className="bg-aegis-sage/10 text-[#5F7055] text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border border-aegis-sage/20">{article.category}</span>
                             <h4 className="font-bold text-slate-800 text-base mt-3 leading-snug">{article.title}</h4>
                           </div>
                           <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                             <span>⏱️ {article.readTime} Bacaan</span>
-                            <button className="flex items-center gap-1 hover:text-[#8DA382] transition-colors">
-                              <LucideIcon name="heart" className="w-3.5 h-3.5" /> {article.likes} Likes
+                            <button className="flex items-center gap-1 hover:text-aegis-sage transition-colors">
+                              <SvgIcon name="heart" className="w-3.5 h-3.5" /> {article.likes} Likes
                             </button>
                           </div>
                         </div>
                       ))}
 
-                      {/* Interactive Micro Card 1 */}
-                      <div className="bg-gradient-to-br from-[#8DA382] to-[#6C8361] p-6 rounded-2xl text-white md:col-span-2 shadow-md relative overflow-hidden">
+                      {/* Interactive Micro Card */}
+                      <div className="bg-gradient-to-br from-aegis-sage to-[#7D9171] p-6 rounded-2xl text-white md:col-span-2 shadow-md relative overflow-hidden">
                         <div className="absolute right-0 bottom-0 opacity-10">
-                          <LucideIcon name="sparkles" className="w-48 h-48" />
+                          <SvgIcon name="sparkles" className="w-48 h-48" />
                         </div>
                         <span className="bg-white/20 text-slate-100 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-white/30">Just-World Hypothesis</span>
                         <h4 className="font-bold text-lg mt-3">Mengapa Seseorang Menghakimi Korban?</h4>
                         <p className="text-xs text-slate-100/90 mt-2 leading-relaxed font-light">
-                          Secara tidak sadar, banyak orang memiliki bias kognitif bahwa "hal buruk hanya menimpa orang buruk". Hal ini dinamakan hipotesis dunia yang adil, sehingga ketika terjadi kekerasan, lingkungan mencari kesalahan perilaku korban sebagai pembelaan diri agar merasa aman. Di SOULCIUS, kami melatih civitas akademika melunturkan praduga ini.
+                          Secara tidak sadar, banyak orang memiliki bias kognitif bahwa "hal buruk hanya menimpa orang buruk". Hal ini dinamakan hipotesis dunia yang adil, sehingga ketika terjadi kekerasan, lingkungan mencari kesalahan perilaku korban sebagai pembelaan diri agar merasa aman. Di AEGIS, kami melatih civitas akademika melunturkan praduga ini.
                         </p>
                       </div>
                     </div>
@@ -643,12 +723,12 @@
                             }}
                             className={`w-full text-left p-4 rounded-xl text-xs transition-all duration-300 border flex items-start gap-3 transform active:scale-[0.99] ${
                               selectedSimOption === idx 
-                                ? 'bg-[#8DA382]/10 border-[#8DA382] text-slate-900 font-semibold shadow-inner' 
+                                ? 'bg-aegis-sage/10 border-aegis-sage text-slate-900 font-semibold shadow-inner' 
                                 : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 hover:border-slate-300'
                             }`}
                           >
                             <span className={`w-5 h-5 rounded-full flex items-center justify-center border font-bold ${
-                              selectedSimOption === idx ? 'bg-[#8DA382] text-white' : 'border-slate-300 text-slate-400'
+                              selectedSimOption === idx ? 'bg-aegis-sage text-white' : 'border-slate-300 text-slate-400'
                             }`}>
                               {String.fromCharCode(65 + idx)}
                             </span>
@@ -660,7 +740,7 @@
                       {selectedSimOption !== null && (
                         <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-100 animate-fadeIn">
                           <div className="flex items-center gap-2 mb-1">
-                            <LucideIcon name="check-circle-2" className="w-5 h-5 text-[#8DA382]" />
+                            <SvgIcon name="check-circle-2" className="w-5 h-5 text-aegis-sage" />
                             <span className="text-xs font-bold text-slate-800">Evaluasi Kompetensi Empati Anda (Skor: {simScore}/30)</span>
                           </div>
                           <p className="text-xs text-slate-600 leading-relaxed mt-1">{CASE_SIMULATIONS[0].options[selectedSimOption].feedback}</p>
@@ -669,14 +749,14 @@
                     </div>
                   </div>
 
-                  {/* Chatbot SOBOT Education */}
+                  {/* Chatbot EIRA */}
                   <div className="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[520px] overflow-hidden">
-                    <div className="bg-[#8DA382] p-5 text-white flex items-center justify-between">
+                    <div className="bg-aegis-sage p-5 text-white flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-[#7C9372] flex items-center justify-center text-lg shadow-inner">🤖</div>
+                        <div className="w-10 h-10 rounded-full bg-[#7D9171] flex items-center justify-center text-xs font-extrabold shadow-inner text-white">EIRA</div>
                         <div>
-                          <h4 className="font-bold text-sm tracking-tight">SOBOT Edukasi</h4>
-                          <p className="text-[10px] text-slate-100">Konselor Edukatif AI</p>
+                          <h4 className="font-bold text-sm tracking-tight">EIRA</h4>
+                          <p className="text-[10px] text-slate-100">Virtual Mentor AI</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-1.5">
@@ -691,7 +771,7 @@
                         <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`p-3.5 rounded-2xl max-w-[85%] ${
                             msg.sender === 'user' 
-                              ? 'bg-[#8DA382] text-white rounded-br-none shadow-md' 
+                              ? 'bg-aegis-sage text-white rounded-br-none shadow-md' 
                               : 'bg-slate-100 text-slate-800 rounded-bl-none border border-slate-150'
                           }`}>
                             {msg.text}
@@ -706,12 +786,12 @@
                         type="text" 
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Tanya: Apa peran saya sebagai peer support?"
-                        className="flex-1 text-xs border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8DA382]"
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendSobot()}
+                        placeholder="Tanya EIRA: Apa itu Just-World Hypothesis?"
+                        className="flex-1 text-xs border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-aegis-sage"
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendEira()}
                       />
-                      <button onClick={handleSendSobot} className="bg-[#8DA382] hover:bg-[#798C6F] text-white p-3 rounded-xl transition-all active:scale-90 shadow-sm">
-                        <LucideIcon name="send" className="w-4 h-4" />
+                      <button onClick={handleSendEira} className="bg-aegis-sage hover:bg-[#7D9171] text-white p-3 rounded-xl transition-all active:scale-90 shadow-sm">
+                        <SvgIcon name="send" className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -720,11 +800,12 @@
               </div>
             )}
 
-            {/* LAYANAN DETECT */}
+            {}
+            {/* TAB: LAYANAN DETECT */}
             {activeTab === 'detect' && (
               <div className="space-y-8 animate-fadeIn transition-all">
                 <div>
-                  <span className="bg-[#3B5F8F]/20 text-[#2D4A70] text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-[#3B5F8F]/30">
+                  <span className="bg-aegis-blue/20 text-aegis-blue text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-aegis-blue/30">
                     DETECT — Evaluasi Indikasi Emosional
                   </span>
                   <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Asesmen Risiko Kekerasan Psikis</h2>
@@ -740,8 +821,8 @@
                         <h3 className="font-bold text-slate-800 text-lg">Formulir Asesmen Mandiri</h3>
                         <p className="text-xs text-slate-400 mt-0.5">Seluruh kuesioner dilindungi standar keamanan, data lokal tidak disimpan permanen.</p>
                       </div>
-                      <button onClick={resetAssessment} className="text-xs font-semibold text-slate-500 hover:text-[#3B5F8F] flex items-center gap-1.5 transition-colors transform active:scale-95">
-                        <LucideIcon name="refresh-cw" className="w-3.5 h-3.5" /> Bersihkan
+                      <button onClick={resetAssessment} className="text-xs font-semibold text-slate-500 hover:text-aegis-blue flex items-center gap-1.5 transition-colors transform active:scale-95">
+                        <SvgIcon name="refresh-cw" className="w-3.5 h-3.5" /> Bersihkan
                       </button>
                     </div>
 
@@ -754,7 +835,7 @@
                         { id: 'q5', text: 'Apakah perlakuan buruk tersebut mempengaruhi kesehatan fisik Anda (misalnya: sulit tidur, kehilangan nafsu makan, detak jantung cepat)?' }
                       ].map((q, idx) => (
                         <div key={q.id} className="space-y-3">
-                          <p className="text-sm font-semibold text-slate-700 leading-relaxed"><span className="text-[#3B5F8F] mr-1">{idx+1}.</span> {q.text}</p>
+                          <p className="text-sm font-semibold text-slate-700 leading-relaxed"><span className="text-aegis-blue mr-1">{idx+1}.</span> {q.text}</p>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                             {[
                               { text: 'Tidak Pernah', value: 0 },
@@ -767,7 +848,7 @@
                                 onClick={() => handleAssessmentAnswer(q.id, opt.value)}
                                 className={`p-3 rounded-xl text-xs font-semibold text-center transition-all duration-300 border transform active:scale-95 ${
                                   assessmentAnswers[q.id] === opt.value
-                                    ? 'bg-[#3B5F8F] border-[#3B5F8F] text-white shadow-md font-bold'
+                                    ? 'bg-aegis-blue border-aegis-blue text-white shadow-md font-bold'
                                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
                                 }`}
                               >
@@ -782,14 +863,15 @@
                     <div className="pt-4 border-t border-slate-100">
                       <button 
                         onClick={calculateRisk}
-                        className="w-full bg-[#3B5F8F] hover:bg-[#2F4D75] text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-[#3B5F8F]/10 flex items-center justify-center gap-2 transform active:scale-95"
+                        className="w-full bg-aegis-blue hover:bg-[#152B44] text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-aegis-blue/10 flex items-center justify-center gap-2 transform active:scale-95"
                       >
-                        Mulai Kalkulasi Risiko <LucideIcon name="chevron-right" className="w-4 h-4" />
+                        Mulai Kalkulasi Risiko <SvgIcon name="chevron-right" className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Right Column: Dynamic Result / SOBOT Recommendation */}
+                  {}
+                  {/* Right Column: Dynamic Result */}
                   <div className="space-y-6">
                     
                     {/* Result Card */}
@@ -799,23 +881,21 @@
                       {!assessmentFinished ? (
                         <div className="py-12 flex flex-col items-center justify-center text-slate-400">
                           <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100">
-                            <LucideIcon name="search" className="w-7 h-7 text-[#3B5F8F]" />
+                            <SvgIcon name="search" className="w-7 h-7 text-aegis-blue" />
                           </div>
                           <p className="text-xs font-semibold">Isi seluruh kuesioner mandiri di samping untuk mengetahui tingkat kenyamanan emosional Anda.</p>
                         </div>
                       ) : (
                         <div className="space-y-6 animate-fadeIn transition-opacity duration-300">
-                          {/* Risk Badge */}
                           <div className="inline-block px-8 py-5 rounded-3xl border border-slate-150 text-center bg-slate-50/50">
                             <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Tingkat Risiko Terdeteksi</p>
                             <span className={`text-4xl font-extrabold block mt-2 uppercase tracking-wide ${
-                              assessmentRisk === 'Tinggi' ? 'text-rose-600' : assessmentRisk === 'Sedang' ? 'text-amber-600' : 'text-[#8DA382]'
+                              assessmentRisk === 'Tinggi' ? 'text-rose-600' : assessmentRisk === 'Sedang' ? 'text-amber-600' : 'text-aegis-sage'
                             }`}>
                               {assessmentRisk}
                             </span>
                           </div>
 
-                          {/* Explanation Text */}
                           <div className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left">
                             {assessmentRisk === 'Tinggi' && (
                               <p>
@@ -834,21 +914,20 @@
                             )}
                           </div>
 
-                          {/* Next Step Action Button */}
                           <div className="pt-2">
                             {assessmentRisk === 'Tinggi' ? (
                               <button 
                                 onClick={() => setActiveTab('protect')}
                                 className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md active:scale-95"
                               >
-                                <LucideIcon name="shield" className="w-4 h-4" /> Rujuk ke Satgas PPK / Psikolog
+                                <SvgIcon name="shield" className="w-4 h-4" /> Rujuk ke Satgas PPK / Psikolog
                               </button>
                             ) : (
                               <button 
                                 onClick={() => setActiveTab('support')}
-                                className="w-full bg-[#3B5F8F] hover:bg-[#2F4D75] text-white font-bold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md active:scale-95"
+                                className="w-full bg-aegis-blue hover:bg-aegis-dark text-white font-bold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md active:scale-95"
                               >
-                                <LucideIcon name="message-square" className="w-4 h-4" /> Hubungi Sobat Sebaya
+                                <SvgIcon name="message-square" className="w-4 h-4" /> Hubungi Sobat Sebaya
                               </button>
                             )}
                           </div>
@@ -856,17 +935,17 @@
                       )}
                     </div>
 
-                    {/* SOBOT Reflection Widget */}
-                    <div className="bg-[#1F3452] text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
+                    {/* EIRA Refleksi */}
+                    <div className="bg-aegis-dark text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
                       <div className="absolute right-0 top-0 opacity-10">
-                        <LucideIcon name="heart" className="w-32 h-32" />
+                        <SvgIcon name="heart" className="w-32 h-32" />
                       </div>
                       <div className="relative z-10 flex items-start gap-4">
-                        <div className="text-3xl">🤖</div>
+                        <div className="text-xl font-bold text-aegis-sage">EIRA</div>
                         <div>
-                          <h4 className="font-extrabold text-sm tracking-wide">SOBOT Refleksi</h4>
+                          <h4 className="font-extrabold text-sm tracking-wide">Refleksi EIRA</h4>
                           <p className="text-xs text-slate-300 mt-2 leading-relaxed font-light">
-                            "Evaluasi ini bukanlah vonis kesehatan mental mutlak, melainkan sarana pemantik agar Anda mau divalidasi dan diakui perasaannya sebelum melakukan langkah formal selanjutnya."
+                            "Evaluasi ini bukanlah vonis kesehatan mental mutlak, melainkan sarana pemantik agar Anda mau divalidasi dan diakui perasaannya sebelum mengambil langkah formal selanjutnya."
                           </p>
                         </div>
                       </div>
@@ -878,7 +957,8 @@
               </div>
             )}
 
-            {/* RUANG SUPPORT */}
+            {}
+            {/* TAB: RUANG SUPPORT */}
             {activeTab === 'support' && (
               <div className="space-y-8 animate-fadeIn transition-all">
                 <div>
@@ -891,16 +971,16 @@
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   
-                  {/* Left Column: Peer Support Selection */}
+                  {/* Peer Support Selection */}
                   <div className="lg:col-span-2 space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <h3 className="text-lg font-bold text-slate-800">Daftar Pendamping Aktif</h3>
+                      <h3 className="text-lg font-bold text-slate-800">Daftar Pendamping Aktif (Inisiator AEGIS)</h3>
                       <div className="flex items-center gap-2.5">
                         <span className="text-xs text-slate-500">Mode Anonim:</span>
                         <button 
                           onClick={() => setIsAnonymous(!isAnonymous)}
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                            isAnonymous ? 'bg-[#8DA382]' : 'bg-slate-300'
+                            isAnonymous ? 'bg-aegis-sage' : 'bg-slate-300'
                           }`}
                         >
                           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
@@ -917,7 +997,7 @@
                           key={peer.id} 
                           className={`bg-white rounded-2xl border p-5 transition-all duration-300 flex flex-col justify-between cursor-pointer transform hover:scale-[1.02] ${
                             selectedPeer?.id === peer.id 
-                              ? 'border-[#3B5F8F] ring-2 ring-[#3B5F8F]/15 shadow-md' 
+                              ? 'border-aegis-blue ring-2 ring-aegis-blue/15 shadow-md' 
                               : 'border-slate-100 hover:border-slate-300 shadow-sm'
                           }`}
                           onClick={() => {
@@ -931,23 +1011,23 @@
                               <span className="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">{peer.badge}</span>
                             </div>
                             <h4 className="font-bold text-slate-800 text-sm leading-tight">{peer.name}</h4>
-                            <p className="text-[10px] text-[#3B5F8F] font-bold mt-1 uppercase">{peer.major}</p>
+                            <p className="text-[10px] text-aegis-blue font-bold mt-1 uppercase">{peer.major}</p>
                             <p className="text-xs text-slate-500 mt-2.5 leading-relaxed line-clamp-4">{peer.bio}</p>
                           </div>
                           <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
                             <span className="text-[10px] text-slate-400 font-semibold">🗣️ {peer.casesSolved} Sesi Selesai</span>
-                            <span className="text-xs font-bold text-[#3B5F8F] hover:text-[#2D4A70] transition-colors flex items-center gap-0.5">
-                              Hubungi <LucideIcon name="chevron-right" className="w-3.5 h-3.5" />
+                            <span className="text-xs font-bold text-aegis-blue hover:text-aegis-dark transition-colors flex items-center gap-0.5">
+                              Hubungi <SvgIcon name="chevron-right" className="w-3.5 h-3.5" />
                             </span>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    {/* Match Scheduling Section */}
+                    {/* Booking Form */}
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                       <h3 className="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
-                        <LucideIcon name="calendar" className="w-5 h-5 text-purple-600" /> Atur Konseling Offline / Online Berjadwal
+                        <SvgIcon name="calendar" className="w-5 h-5 text-purple-600" /> Atur Konseling Offline / Online Berjadwal
                       </h3>
                       <p className="text-xs text-slate-500 mb-6 leading-relaxed">
                         Sistem akan mencocokkan jadwal kosong Anda dengan kalender akademis Sobat Sebaya. Silakan tentukan opsi pendampingan ternyaman Anda.
@@ -993,7 +1073,7 @@
                       {isBooked ? (
                         <div className="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 animate-fadeIn transition-all">
                           <div className="flex items-center gap-2 mb-1">
-                            <LucideIcon name="check-circle-2" className="w-4 h-4 text-emerald-600" />
+                            <SvgIcon name="check-circle-2" className="w-4 h-4 text-emerald-600" />
                             <span className="text-xs font-bold text-emerald-800">Sesi Konseling Berhasil Terjadwal!</span>
                           </div>
                           <p className="text-[11px] text-slate-600 leading-relaxed">Jadwal Anda bersama {selectedPeer?.name || 'Sobat Sebaya'} sudah dikonfirmasi untuk tanggal {bookingDate} pukul {bookingTime}. Kami telah mengirimkan detail tempat rahasia/tautan rapat ke alamat email terenkripsi Anda.</p>
@@ -1009,7 +1089,8 @@
                     </div>
                   </div>
 
-                  {/* Right Column: Active Interactive Chat Room */}
+                  {}
+                  {/* Right Column: Chat with Peer */}
                   <div className="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[520px] overflow-hidden">
                     {!isChattingWithPeer ? (
                       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-slate-400">
@@ -1019,7 +1100,7 @@
                       </div>
                     ) : (
                       <div className="flex-grow flex flex-col h-full animate-fadeIn transition-all duration-300">
-                        <div className="bg-[#3B5F8F] p-5 text-white flex items-center justify-between">
+                        <div className="bg-aegis-blue p-5 text-white flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <span className="text-2xl">{selectedPeer.avatar}</span>
                             <div>
@@ -1037,13 +1118,13 @@
                           </button>
                         </div>
 
-                        {/* Chat Messages */}
+                        {/* Messages */}
                         <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
                           {peerChatMessages.map((msg, index) => (
                             <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                               <div className={`p-3.5 rounded-2xl max-w-[85%] ${
                                 msg.sender === 'user' 
-                                  ? 'bg-[#3B5F8F] text-white rounded-br-none shadow-sm' 
+                                  ? 'bg-aegis-blue text-white rounded-br-none shadow-sm' 
                                   : 'bg-slate-150 text-slate-800 rounded-bl-none border border-slate-100'
                               }`}>
                                 {msg.text}
@@ -1052,18 +1133,18 @@
                           ))}
                         </div>
 
-                        {/* Input Chat */}
+                        {/* Input Box */}
                         <div className="p-4 border-t border-slate-100 flex items-center gap-3">
                           <input 
                             type="text" 
                             value={peerInput}
                             onChange={(e) => setPeerInput(e.target.value)}
                             placeholder="Ketik rahasia Anda di sini secara aman..."
-                            className="flex-1 text-xs border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500"
+                            className="flex-1 text-xs border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-aegis-blue"
                             onKeyDown={(e) => e.key === 'Enter' && handleSendPeer()}
                           />
-                          <button onClick={handleSendPeer} className="bg-[#3B5F8F] hover:bg-[#2F4D75] text-white p-3 rounded-xl transition-all active:scale-90">
-                            <LucideIcon name="send" className="w-4 h-4" />
+                          <button onClick={handleSendPeer} className="bg-aegis-blue hover:bg-aegis-dark text-white p-3 rounded-xl transition-all active:scale-90">
+                            <SvgIcon name="send" className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -1074,7 +1155,8 @@
               </div>
             )}
 
-            {/* JALUR PROTECT */}
+            {}
+            {/* TAB: JALUR PROTECT */}
             {activeTab === 'protect' && (
               <div className="space-y-8 animate-fadeIn transition-all">
                 <div>
@@ -1088,19 +1170,19 @@
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   
                   {/* Emergency Pathway Banner */}
-                  <div className="lg:col-span-3 bg-gradient-to-br from-[#3B5F8F] to-rose-950 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden border border-rose-800/20">
+                  <div className="lg:col-span-3 bg-gradient-to-br from-aegis-blue to-rose-950 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden border border-rose-800/20">
                     <div className="absolute right-0 top-0 opacity-10 transform translate-x-6 -translate-y-6">
-                      <LucideIcon name="alert-triangle" className="w-64 h-64" />
+                      <SvgIcon name="alert-triangle" className="w-64 h-64" />
                     </div>
                     <div className="relative z-10 max-w-3xl">
-                      <span className="bg-[#8DA382]/30 text-slate-100 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-widest border border-white/20">Emergency Pathway</span>
+                      <span className="bg-aegis-sage/30 text-slate-100 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-widest border border-white/20">Emergency Pathway</span>
                       <h3 className="text-2xl md:text-3xl font-bold mt-4">Krisis Kesehatan Mental / Ancaman Kekerasan Aktif?</h3>
                       <p className="text-slate-100 text-xs md:text-sm mt-3 leading-relaxed font-light">
-                        Sistem SOULCIUS langsung mendeteksi ancaman bahaya fisik, tindakan intimidasi ekstrem, maupun depresi risiko tinggi. Anda berhak melewatkan semua tahap konsultasi dan mengakses pertolongan langsung dari pihak berwenang sekarang juga.
+                        Sistem AEGIS langsung mendeteksi ancaman bahaya fisik, tindakan intimidasi ekstrem, maupun depresi risiko tinggi. Anda berhak melewatkan semua tahap konsultasi dan mengakses pertolongan langsung dari pihak berwenang sekarang juga.
                       </p>
                       <div className="mt-6 flex flex-wrap gap-4">
                         <a href="tel:112" className="bg-rose-600 hover:bg-rose-700 transition-all font-bold px-6 py-3.5 rounded-xl text-xs flex items-center gap-2 shadow-md transform active:scale-95 text-white">
-                          <LucideIcon name="phone-call" className="w-4 h-4" /> Hubungi Layanan Darurat Kampus
+                          <SvgIcon name="phone-call" className="w-4 h-4" /> Hubungi Layanan Darurat Kampus
                         </a>
                         <button 
                           onClick={() => triggerNotification('success', 'Aduan Prioritas', 'Laporan darurat prioritas Anda telah masuk ke jajaran Satgas PPK terenkripsi. Sesi evakuasi aman disiapkan.')}
@@ -1115,7 +1197,7 @@
                   {/* Referral System Breakdown */}
                   <div className="lg:col-span-2 space-y-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                      <LucideIcon name="shield" className="w-5 h-5 text-rose-700" /> Struktur Alur Proteksi Formal
+                      <SvgIcon name="shield" className="w-5 h-5 text-rose-700" /> Struktur Alur Proteksi Formal
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1124,7 +1206,7 @@
                       <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 transform hover:scale-[1.01]">
                         <div>
                           <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-700 mb-4 border border-purple-100">
-                            <LucideIcon name="user" className="w-5 h-5" />
+                            <SvgIcon name="user" className="w-5 h-5" />
                           </div>
                           <h4 className="font-bold text-slate-800 text-base leading-snug">Jalur Medis: Konselor Profesional / Psikolog</h4>
                           <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -1132,8 +1214,8 @@
                           </p>
                         </div>
                         <div className="mt-6 pt-4 border-t border-slate-100">
-                          <span className="text-xs font-bold text-[#3B5F8F] flex items-center gap-1 cursor-pointer hover:underline">
-                            Pelajari Layanan Klinis <LucideIcon name="chevron-right" className="w-4 h-4" />
+                          <span className="text-xs font-bold text-aegis-blue flex items-center gap-1 cursor-pointer hover:underline">
+                            Pelajari Layanan Klinis <SvgIcon name="chevron-right" className="w-4 h-4" />
                           </span>
                         </div>
                       </div>
@@ -1142,7 +1224,7 @@
                       <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 transform hover:scale-[1.01]">
                         <div>
                           <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-700 mb-4 border border-rose-100">
-                            <LucideIcon name="shield" className="w-5 h-5" />
+                            <SvgIcon name="shield" className="w-5 h-5" />
                           </div>
                           <h4 className="font-bold text-slate-800 text-base leading-snug">Jalur Hukum: Satgas PPK Kampus</h4>
                           <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -1151,7 +1233,7 @@
                         </div>
                         <div className="mt-6 pt-4 border-t border-slate-100">
                           <span className="text-xs font-bold text-rose-700 flex items-center gap-1 cursor-pointer hover:underline">
-                            Ajukan Pengaduan Hukum Resmi <LucideIcon name="chevron-right" className="w-4 h-4" />
+                            Ajukan Pengaduan Hukum Resmi <SvgIcon name="chevron-right" className="w-4 h-4" />
                           </span>
                         </div>
                       </div>
@@ -1164,7 +1246,7 @@
                       <div>
                         <h4 className="font-bold text-slate-800 text-xs">Pentingnya Validasi di Awal</h4>
                         <p className="text-slate-500 text-[11px] leading-relaxed mt-1">
-                          Platform SOULCIUS tidak langsung memaksa korban melapor ke Satgas PPK demi menjaga kesiapan mental korban. Kami meyakini bahwa perlindungan terbaik didasari kesediaan penuh korban setelah divalidasi oleh Sobat Sebaya.
+                          Platform AEGIS tidak langsung memaksa korban melapor ke Satgas PPK demi menjaga kesiapan mental korban. Kami meyakini bahwa perlindungan terbaik didasari kesediaan penuh korban setelah divalidasi oleh Sobat Sebaya.
                         </p>
                       </div>
                     </div>
@@ -1214,7 +1296,8 @@
               </div>
             )}
 
-            {/* LANGKAH RECOVERY */}
+            {}
+            {/* TAB: LANGKAH RECOVERY */}
             {activeTab === 'recovery' && (
               <div className="space-y-8 animate-fadeIn transition-all">
                 <div>
@@ -1227,14 +1310,14 @@
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   
-                  {/* Left Column: Mood/Recovery Tracker & Resource Center */}
+                  {/* Left Column: Mood Tracker */}
                   <div className="lg:col-span-2 space-y-8">
                     
                     {/* Recovery Check-in */}
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
                       <div className="flex items-center justify-between">
                         <h3 className="font-bold text-slate-800 text-base flex items-center gap-1.5">
-                          <LucideIcon name="activity" className="w-5 h-5 text-teal-600" /> Recovery Check-In Harian
+                          <SvgIcon name="activity" className="w-5 h-5 text-teal-600" /> Recovery Check-In Harian
                         </h3>
                         <span className="text-xs text-slate-400 font-semibold">Diperbarui Berkala</span>
                       </div>
@@ -1276,7 +1359,7 @@
                     {/* Resource Center */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <LucideIcon name="book-open" className="w-5 h-5 text-[#8DA382]" /> Perpustakaan Literasi Mandiri
+                        <SvgIcon name="book-open" className="w-5 h-5 text-aegis-sage" /> Perpustakaan Literasi Mandiri
                       </h3>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1293,7 +1376,7 @@
                               <span>📥 {item.downloads} diunduh</span>
                               <span 
                                 onClick={() => triggerNotification('success', 'Buku Saku Diunduh', 'Unduhan buku saku dimulai. Selamat membaca!')}
-                                className="text-[#3B5F8F] font-bold cursor-pointer hover:underline"
+                                className="text-aegis-blue font-bold cursor-pointer hover:underline"
                               >
                                 Unduh Buku Saku
                               </span>
@@ -1305,11 +1388,12 @@
 
                   </div>
 
-                  {/* Right Column: Moderated Support Community (Anonymous Forum) */}
+                  {}
+                  {/* Right Column: Community */}
                   <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col h-[520px] justify-between">
                     <div>
                       <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
-                        <LucideIcon name="users" className="w-5 h-5 text-[#3B5F8F]" /> Komunitas Aman (Anonim)
+                        <SvgIcon name="users" className="w-5 h-5 text-aegis-blue" /> Komunitas Aman (Anonim)
                       </h3>
                       <p className="text-xs text-slate-400 mt-1">Dapatkan kekuatan dari kesaksian sesama. Seluruh kiriman diproses secara rahasia dan termoderasi ketat.</p>
                       
@@ -1322,8 +1406,8 @@
                               <span className="text-slate-400">{post.time}</span>
                             </div>
                             <p className="text-slate-600 leading-relaxed font-light">{post.content}</p>
-                            <div className="mt-2.5 flex items-center gap-1 text-slate-400 hover:text-[#8DA382] cursor-pointer transition-colors">
-                              <LucideIcon name="thumbs-up" className="w-3.5 h-3.5" /> <span className="font-semibold">{post.likes}</span>
+                            <div className="mt-2.5 flex items-center gap-1 text-slate-400 hover:text-aegis-sage cursor-pointer transition-colors">
+                              <SvgIcon name="thumbs-up" className="w-3.5 h-3.5" /> <span className="font-semibold">{post.likes}</span>
                             </div>
                           </div>
                         ))}
@@ -1337,11 +1421,11 @@
                         onChange={(e) => setNewPostText(e.target.value)}
                         rows="2" 
                         placeholder="Tulis pesan penyemangat atau kesaksian anonim Anda..."
-                        className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-teal-500 bg-slate-50 font-medium"
+                        className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-aegis-sage bg-slate-50 font-medium"
                       />
                       <button 
                         onClick={handleAddPost}
-                        className="mt-2 w-full bg-[#3B5F8F] hover:bg-[#2F4D75] text-white font-bold py-3 rounded-xl transition-all transform active:scale-95 shadow-md"
+                        className="mt-2 w-full bg-aegis-blue hover:bg-aegis-dark text-white font-bold py-3 rounded-xl transition-all transform active:scale-95 shadow-md"
                       >
                         Kirim ke Komunitas (Anonim)
                       </button>
@@ -1354,16 +1438,17 @@
 
           </main>
 
+          {}
           {/* FOOTER */}
           <footer className="bg-white border-t border-slate-150 mt-12 py-10 text-center text-xs text-slate-400">
             <div className="max-w-7xl mx-auto px-4 space-y-3">
               <div className="flex justify-center items-center">
-                <SoulciusLogo className="w-10 h-10 filter grayscale opacity-60" />
+                <AegisLogo className="w-10 h-10 filter grayscale opacity-60" />
               </div>
-              <p className="font-extrabold text-[#3B5F8F] uppercase tracking-widest mt-2">
-                SOULCIUS — Kampanye Pengurangan Dampak Perilaku Menyalahkan Korban (Victim Blaming)
+              <p className="font-extrabold text-aegis-blue uppercase tracking-widest mt-2">
+                AEGIS — Kampanye Pengurangan Dampak Perilaku Menyalahkan Korban (Victim Blaming)
               </p>
-              <p className="text-slate-400 font-medium">© 2026 SOULCIUS Project. Menjaga Kesejahteraan Mental & Keamanan Jiwa Akademika Universitas.</p>
+              <p className="text-slate-400 font-medium">© 2026 AEGIS Project. Menjaga Kesejahteraan Mental & Keamanan Jiwa Akademika Universitas.</p>
             </div>
           </footer>
         </div>
