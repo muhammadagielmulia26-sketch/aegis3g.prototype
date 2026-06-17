@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOULCIUS - Safe Space & Empathetic AI</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Lucide Icons (Web Script) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            fadeIn: 'fadeIn 0.4s ease-out forwards',
+            slideUp: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(4px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Transisi Halus pada Seluruh Elemen */
+    * {
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Komponen Ikon Lucide untuk React di dalam berkas HTML tunggal
+    function LucideIcon({ name, className = "w-5 h-5" }) {
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }, [name]);
+      return <i data-lucide={name} className={className}></i>;
+    }
+
+    // Komponen Logo Resmi SOULCIUS (Sesuai "ChatGPT Image Jun 5, 2026, 05_57_05 PM.png")
+    function SoulciusLogo({ className = "w-10 h-10", showText = false }) {
+      return (
+        <div className="flex items-center space-x-3 transition-transform duration-300 hover:scale-[1.02]">
+          <svg className={className} viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Background Circle for contrast & elegance */}
+            <circle cx="250" cy="250" r="230" fill="#F8FAFC" />
+            
+            {/* Top-Left Sage Green Swoosh resembling upper half of S and a caring embrace */}
+            <path 
+              d="M320 120 C 230 90, 160 140, 160 220 C 160 270, 200 300, 260 300 C 310 300, 320 270, 290 260 C 250 250, 210 230, 210 190 C 210 150, 260 140, 310 170 C 330 180, 340 160, 320 120 Z" 
+              fill="#8DA382" 
+            />
+            
+            {/* Bottom-Right Steel Blue Swoosh resembling lower half of S and a supportive cradle */}
+            <path 
+              d="M180 380 C 270 410, 340 360, 340 280 C 340 230, 300 200, 240 200 C 190 200, 180 230, 210 240 C 250 250, 290 270, 290 310 C 290 350, 240 360, 190 330 C 170 320, 160 340, 180 380 Z" 
+              fill="#3B5F8F" 
+            />
+            
+            {/* Two Dots representing the two individuals (hearer and seeker) in connection */}
+            <circle cx="190" cy="270" r="28" fill="#8DA382" />
+            <circle cx="310" cy="230" r="28" fill="#3B5F8F" />
+          </svg>
+          {showText && (
+            <div className="flex flex-col select-none">
+              <span className="text-2xl font-bold tracking-widest text-[#3B5F8F] font-sans">
+                SOUL<span className="text-[#8DA382]">CIUS</span>
+              </span>
+              <span className="text-[10px] tracking-[0.2em] font-semibold text-slate-500 uppercase leading-none mt-0.5">
+                hear.support.recover
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Mock Data Konseptual SOULCIUS dengan Identitas Tim Inisiator (Teknik & Adbis)
+    const SOBAT_SEBAYA = [
+      { 
+        id: 'sb-1', 
+        name: 'Muhammad Agiel Mulia', 
+        major: 'Teknik Sipil 2024 / Inisiator', 
+        bio: 'Siap mendengarkan ceritamu dengan penuh empati dan membantumu menemukan kembali rasa aman di kampus tanpa rasa takut dihakimi.', 
+        avatar: '🦊', 
+        rating: 5.0, 
+        casesSolved: 12,
+        badge: 'Sobat Sebaya'
+      },
+      { 
+        id: 'sb-2', 
+        name: 'Prayuda Kamarullah', 
+        major: 'Administrasi Bisnis 2024 / Inisiator', 
+        bio: 'Percayalah bahwa setiap perasaanmu itu valid dan berharga. Aku di sini untuk menemani dan mendengar keluh kesahmu secara rahasia.', 
+        avatar: '🐻', 
+        rating: 5.0, 
+        casesSolved: 15,
+        badge: 'Sobat Sebaya' 
+      },
+      { 
+        id: 'sb-3', 
+        name: 'Muhammad Abdus Sattar Hamid BB', 
+        major: 'Teknik Kimia 2023 / Inisiator', 
+        bio: 'Jangan memendam beban kecemasan sendirian. Mari kita urai pelan-pelan bersama di ruang aman ini dengan santai dan tenang.', 
+        avatar: '🐨', 
+        rating: 5.0, 
+        casesSolved: 11,
+        badge: 'Sobat Sebaya'
+      },
+    ];
+
+    const ARTICLES = [
+      { id: 'art-1', title: 'Mengenali Perbedaan Sedih Biasa vs Depresi Ringan', category: 'Mental Health Literacy', readTime: '3 Menit', likes: 124 },
+      { id: 'art-2', title: 'Bagaimana Menolak Victim Blaming di Sekitarmu', category: 'Campaign & Advocacy', readTime: '5 Menit', likes: 215 },
+      { id: 'art-3', title: '5 Coping Strategy Sederhana saat Panic Attack Melanda', category: 'Coping Strategy', readTime: '4 Menit', likes: 189 },
+    ];
+
+    const CASE_SIMULATIONS = [
+      {
+        id: 'sim-1',
+        situation: 'Teman sekamarmu tiba-tiba sering mengurung diri dan menangis setelah pulang dari kegiatan organisasi, namun dia berkata "Aku gapapa, cuma capek". Apa respon empati terbaikmu?',
+        options: [
+          { text: '"Ah kamu lebay kali, semua orang juga capek berorganisasi."', points: 0, feedback: 'Ini adalah bentuk minimisasi perasaan korban yang mengarah ke pengabaian emosional.' },
+          { text: '"Ya udah kalau ga mau cerita, tapi jangan bikin suasana kamar jadi suram ya."', points: 10, feedback: 'Respon ini egois dan berpotensi membuat temanmu semakin menutup diri.' },
+          { text: '"Aku perhatikan belakangan ini kamu tampak lelah. Kalau kamu butuh teman cerita atau sekadar ditemani diam, aku ada di sini ya."', points: 30, feedback: 'Sangat luar biasa! Anda memvalidasi perubahan perilakunya tanpa memaksa, memberikan ruang aman tanpa tekanan.' }
+        ]
+      }
+    ];
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('home');
+      const [assessmentAnswers, setAssessmentAnswers] = useState({});
+      const [assessmentRisk, setAssessmentRisk] = useState(null);
+      const [simScore, setSimScore] = useState(null);
+      const [selectedSimOption, setSelectedSimOption] = useState(null);
+      const [chatMessages, setChatMessages] = useState([
+        { sender: 'system', text: 'Selamat datang di Ruang Aman SOBOT! Saya adalah asisten AI pendampingmu. Ceritakan apa yang sedang kamu rasakan tanpa takut dihakimi.' }
+      ]);
+      const [inputValue, setInputValue] = useState('');
+      const [peerChatMessages, setPeerChatMessages] = useState([
+        { sender: 'peer', text: 'Halo! Aku Sobat Sebaya-mu hari ini. Silakan ceritakan apa saja, identitasmu aman di sini.' }
+      ]);
+      const [peerInput, setPeerInput] = useState('');
+      const [selectedPeer, setSelectedPeer] = useState(null);
+      const [isAnonymous, setIsAnonymous] = useState(true);
+      const [isChattingWithPeer, setIsChattingWithPeer] = useState(false);
+      const [bookingDate, setBookingDate] = useState('');
+      const [bookingTime, setBookingTime] = useState('');
+      const [isBooked, setIsBooked] = useState(false);
+      const [communityPosts, setCommunityPosts] = useState([
+        { id: 'post-1', author: 'Anonim - Angkatan 22', content: 'Terima kasih SOULCIUS, akhirnya aku berani cerita setelah setahun memendam rasa cemas akibat dipojokkan rekan kerja organisasi.', likes: 42, time: '2 jam yang lalu' },
+        { id: 'post-2', author: 'Anonim - Angkatan 23', content: 'Rasanya lega sekali saat Sobat Sebaya memvalidasi perasaanku dan tidak bilang kalau aku "baperan". Kalian hebat!', likes: 56, time: '5 jam yang lalu' }
+      ]);
+      const [newPostText, setNewPostText] = useState('');
+      const [dailyMood, setDailyMood] = useState(null);
+      const [assessmentFinished, setAssessmentFinished] = useState(false);
+
+      // Replacement for browser alert() dialogs
+      const [customNotification, setCustomNotification] = useState(null);
+
+      const triggerNotification = (type, title, message) => {
+        setCustomNotification({ type, title, message });
+      };
+
+      // SOBOT AI Chat Bot Logic
+      const handleSendSobot = () => {
+        if (!inputValue.trim()) return;
+        const userMsg = { sender: 'user', text: inputValue };
+        setChatMessages(prev => [...prev, userMsg]);
+        const currentInput = inputValue;
+        setInputValue('');
+
+        setTimeout(() => {
+          let botReply = '';
+          const text = currentInput.toLowerCase();
+          if (text.includes('sedih') || text.includes('cemas') || text.includes('takut')) {
+            botReply = 'Perasaan sedih dan cemas yang kamu alami sangat valid. Kamu tidak sendirian. Apakah kamu bersedia mencoba mengisi menu "DETECT" di atas untuk mengetahui tingkat risikomu saat ini?';
+          } else if (text.includes('victim blaming') || text.includes('salah')) {
+            botReply = 'Ingat ya, kekerasan psikis yang terjadi bukanlah kesalahanmu. Perilaku menyalahkan korban (victim blaming) adalah salah satu fokus edukasi kami agar lingkungan kampus lebih aman.';
+          } else {
+            botReply = 'Terima kasih sudah berbagi denganku. Di SOULCIUS, kami berkomitmen menjaga kerahasiaanmu. Jika kamu membutuhkan telinga manusia yang responsif, kamu bisa bergeser ke menu "SUPPORT" untuk mengobrol dengan Sobat Sebaya.';
+          }
+          setChatMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
+        }, 900);
+      };
+
+      // Peer Chat Bot Logic
+      const handleSendPeer = () => {
+        if (!peerInput.trim()) return;
+        const userMsg = { sender: 'user', text: peerInput };
+        setPeerChatMessages(prev => [...prev, userMsg]);
+        setPeerInput('');
+
+        setTimeout(() => {
+          setPeerChatMessages(prev => [...prev, { 
+            sender: 'peer', 
+            text: 'Terima kasih sudah mau berbagi denganku. Ceritamu sepenuhnya aman. Aku mendengarkanmu dengan penuh empati. Kita bisa diskusikan bersama langkah nyaman selanjutnya, ya.' 
+          }]);
+        }, 1100);
+      };
+
+      // Assessment Logic
+      const handleAssessmentAnswer = (questionId, score) => {
+        setAssessmentAnswers(prev => ({ ...prev, [questionId]: score }));
+      };
+
+      const calculateRisk = () => {
+        const totalQuestions = 5;
+        const answeredCount = Object.keys(assessmentAnswers).length;
+        if (answeredCount < totalQuestions) {
+          triggerNotification(
+            'warning', 
+            'Asesmen Belum Lengkap', 
+            'Mohon selesaikan kelima pertanyaan asesmen terlebih dahulu agar kami dapat mendeteksi tingkat risiko Anda dengan akurat.'
+          );
+          return;
+        }
+
+        const totalScore = Object.values(assessmentAnswers).reduce((a, b) => a + b, 0);
+        let risk = 'Rendah';
+        if (totalScore >= 11) risk = 'Tinggi';
+        else if (totalScore >= 6) risk = 'Sedang';
+
+        setAssessmentRisk(risk);
+        setAssessmentFinished(true);
+        triggerNotification(
+          'success',
+          'Asesmen Berhasil',
+          `Identifikasi selesai. Kondisi psikis Anda tergolong dalam tingkat risiko: ${risk.toUpperCase()}. Silakan periksa rekomendasi pendampingan di sisi kanan.`
+        );
+      };
+
+      const resetAssessment = () => {
+        setAssessmentAnswers({});
+        setAssessmentRisk(null);
+        setAssessmentFinished(false);
+      };
+
+      // Handle Post Community
+      const handleAddPost = () => {
+        if (!newPostText.trim()) return;
+        const newPost = {
+          id: `post-${Date.now()}`,
+          author: 'Anonim - Angkatan Baru',
+          content: newPostText,
+          likes: 0,
+          time: 'Baru saja'
+        };
+        setCommunityPosts([newPost, ...communityPosts]);
+        setNewPostText('');
+        triggerNotification(
+          'success',
+          'Pesan Terkirim',
+          'Terima kasih telah berbagi! Pesan anonim Anda berhasil diterbitkan ke komunitas setelah melewati sistem moderasi otomatis SOULCIUS.'
+        );
+      };
+
+      // Handle Booking Sesi
+      const handleBooking = () => {
+        if (!selectedPeer || !bookingDate || !bookingTime) {
+          triggerNotification(
+            'error',
+            'Data Pertemuan Kurang',
+            'Silakan tentukan Sobat Sebaya pilihan Anda serta lengkapi isian tanggal dan jam pertemuan.'
+          );
+          return;
+        }
+        setIsBooked(true);
+        triggerNotification(
+          'success',
+          'Pertemuan Terjadwal',
+          `Jadwal Anda bersama ${selectedPeer.name} telah berhasil terdaftar pada ${bookingDate} pukul ${bookingTime}. Detail dan lokasi ruang aman dikirimkan secara pribadi ke email Anda.`
+        );
+      };
+
+      // Handle Rujukan Pengaduan PPK
+      const handleTicketGeneration = () => {
+        triggerNotification(
+          'success',
+          'Tiket Rujukan Dibuat',
+          'Tiket Pengajuan Rujukan Anda berhasil dibuat dengan aman dan terenkripsi. Tim Satgas PPK atau Konselor Profesional UPT Universitas akan menghubungi Anda dalam waktu maksimal 1x24 jam.'
+        );
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col transition-colors duration-500">
+          
+          {/* CUSTOM ACCESSIBLE MODAL NOTIFICATION (No native alert) */}
+          {customNotification && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300">
+              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 transform scale-100 transition-transform duration-300 animate-fadeIn">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      customNotification.type === 'success' ? 'bg-[#8DA382]/20 text-[#8DA382]' :
+                      customNotification.type === 'warning' ? 'bg-amber-100 text-amber-700' :
+                      'bg-rose-100 text-rose-600'
+                    }`}>
+                      <LucideIcon name={customNotification.type === 'success' ? 'check-circle-2' : 'alert-triangle'} className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800">{customNotification.title}</h3>
+                  </div>
+                  <button 
+                    onClick={() => setCustomNotification(null)}
+                    className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-50 transition-colors"
+                  >
+                    <LucideIcon name="x" className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-sm text-slate-600 mt-4 leading-relaxed">{customNotification.message}</p>
+                <div className="mt-6 flex justify-end">
+                  <button 
+                    onClick={() => setCustomNotification(null)}
+                    className="px-5 py-2.5 bg-[#3B5F8F] hover:bg-[#2D4A70] text-white font-semibold rounded-xl text-xs transition-all duration-200 shadow-sm active:scale-95"
+                  >
+                    Mengerti
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* HEADER BAR WITH SVG LOGO */}
+          <header className="bg-white border-b border-slate-150 sticky top-0 z-40 shadow-sm transition-all duration-300">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+              <div className="cursor-pointer" onClick={() => setActiveTab('home')}>
+                <SoulciusLogo className="w-12 h-12" showText={true} />
+              </div>
+              
+              <nav className="hidden md:flex space-x-1">
+                {[
+                  { id: 'home', label: 'Dashboard' },
+                  { id: 'aware', label: 'Pilar AWARE' },
+                  { id: 'detect', label: 'Layanan DETECT' },
+                  { id: 'support', label: 'Ruang SUPPORT' },
+                  { id: 'protect', label: 'Jalur PROTECT' },
+                  { id: 'recovery', label: 'Langkah RECOVERY' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all duration-300 transform active:scale-95 ${
+                      activeTab === tab.id
+                        ? 'bg-[#3B5F8F]/10 text-[#3B5F8F] shadow-sm font-bold scale-[1.02]'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+              
+              <div className="flex items-center space-x-2">
+                <span 
+                  className="text-xs bg-rose-50 text-rose-600 px-3.5 py-2 rounded-full font-bold border border-rose-100 flex items-center gap-1.5 cursor-pointer hover:bg-rose-100 transition-all duration-200 active:scale-95 shadow-sm"
+                  onClick={() => setActiveTab('protect')}
+                >
+                  <LucideIcon name="alert-triangle" className="w-3.5 h-3.5" /> Darurat Kampus
+                </span>
+              </div>
+            </div>
+          </header>
+
+          {/* MOBILE NAV BAR */}
+          <div className="md:hidden bg-white border-b border-slate-200 overflow-x-auto flex whitespace-nowrap py-3 px-4 space-x-2 scrollbar-none shadow-inner">
+            {[
+              { id: 'home', label: 'Dashboard' },
+              { id: 'aware', label: 'Pilar AWARE' },
+              { id: 'detect', label: 'Layanan DETECT' },
+              { id: 'support', label: 'Ruang SUPPORT' },
+              { id: 'protect', label: 'Jalur PROTECT' },
+              { id: 'recovery', label: 'Langkah RECOVERY' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 active:scale-90 ${
+                  activeTab === tab.id 
+                    ? 'bg-[#3B5F8F] text-white shadow-md' 
+                    : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            {/* PILAR 0: DASHBOARD / HOME */}
+            {activeTab === 'home' && (
+              <div className="space-y-8 animate-fadeIn transition-opacity duration-500">
+                {/* Hero Banner with Integrated Colors & Slogan */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3B5F8F] via-[#2F4D75] to-[#1F3452] text-white p-8 md:p-12 shadow-xl border border-slate-800">
+                  <div className="absolute right-0 top-0 opacity-10 transform translate-x-12 -translate-y-12">
+                    <LucideIcon name="heart" className="w-96 h-96" />
+                  </div>
+                  <div className="relative z-10 max-w-2xl">
+                    <span className="bg-[#8DA382]/30 text-[#D2DFCE] px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase border border-[#8DA382]/40 shadow-inner">
+                      hear • support • recover
+                    </span>
+                    <h1 className="text-3xl md:text-5xl font-extrabold mt-5 tracking-tight leading-tight">
+                      Ruang Aman Digital untuk Jiwa yang Berharga
+                    </h1>
+                    <p className="text-slate-100 text-base md:text-lg mt-4 leading-relaxed font-light">
+                      SOULCIUS hadir menjembatani kesenjangan perlindungan kekerasan psikis di lingkungan kampus. Dapatkan edukasi, uji kecemasan secara mandiri, hubungi pendamping mahasiswa tepercaya, serta hubungi satgas profesional tanpa rasa bersalah.
+                    </p>
+                    <div className="flex flex-wrap gap-4 mt-8">
+                      <button 
+                        onClick={() => setActiveTab('detect')} 
+                        className="bg-white text-[#3B5F8F] hover:bg-slate-50 transition-all duration-300 font-bold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 transform active:scale-95"
+                      >
+                        Mulai Deteksi Mandiri <LucideIcon name="arrow-right" className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('aware')} 
+                        className="bg-[#8DA382] hover:bg-[#7D9372] text-white transition-all duration-300 font-semibold px-6 py-3.5 rounded-xl border border-white/20 transform active:scale-95 shadow-md"
+                      >
+                        Pelajari Mengapa Kami Peduli
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alur Sistem & Komponen Utama */}
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-800 tracking-tight mb-2 flex items-center gap-2">
+                    <SoulciusLogo className="w-7 h-7" /> Mengapa Memilih SOULCIUS?
+                  </h2>
+                  <p className="text-slate-500 text-sm mb-6">Sebuah ekosistem perlindungan holistik dan berlapis demi pemulihan psikologis korban.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                    {[
+                      { step: '01', title: 'AWARE', desc: 'Konten mikro, simulasi respon empati, kuis, dan konsultasi interaktif bersama asisten AI.', bg: 'bg-[#8DA382]/5 border-[#8DA382]/20 hover:border-[#8DA382]', icon: 'book-open', color: 'text-[#8DA382]', tab: 'aware' },
+                      { step: '02', title: 'DETECT', desc: 'Identifikasi tingkat risiko psikis dan rasa tidak nyaman secara rahasia dan terstruktur.', bg: 'bg-[#3B5F8F]/5 border-[#3B5F8F]/20 hover:border-[#3B5F8F]', icon: 'search', color: 'text-[#3B5F8F]', tab: 'detect' },
+                      { step: '03', title: 'SUPPORT', desc: 'Hubungi kawan cerita terlatih (Peer Support Student) dalam mode anonim yang nyaman.', bg: 'bg-purple-50 border-purple-100 hover:border-purple-400', icon: 'message-square', color: 'text-purple-700', tab: 'support' },
+                      { step: '04', title: 'PROTECT', desc: 'Sistem rujukan aman ke Psikolog UPT atau Satgas PPK Universitas untuk perlindungan hukum.', bg: 'bg-rose-50 border-rose-100 hover:border-rose-400', icon: 'shield', color: 'text-rose-700', tab: 'protect' },
+                      { step: '05', title: 'RECOVER', desc: 'Pantau kebugaran emosi harian, unduh panduan mandiri, dan bagikan dukungan di forum aman.', bg: 'bg-teal-50 border-teal-100 hover:border-teal-400', icon: 'users', color: 'text-teal-700', tab: 'recovery' },
+                    ].map((item, index) => {
+                      return (
+                        <div 
+                          key={index} 
+                          onClick={() => setActiveTab(item.tab)}
+                          className={`p-6 rounded-2xl border ${item.bg} cursor-pointer hover:shadow-lg hover:scale-[1.03] transition-all duration-300 flex flex-col justify-between`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-xs font-bold text-slate-400">{item.step}</span>
+                              <LucideIcon name={item.icon} className={`w-6 h-6 ${item.color}`} />
+                            </div>
+                            <h3 className={`font-bold text-base ${item.color} tracking-wider`}>{item.title}</h3>
+                            <p className="text-xs text-slate-600 mt-2 leading-relaxed">{item.desc}</p>
+                          </div>
+                          <div className="mt-4 flex items-center text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                            Buka Ruang <LucideIcon name="chevron-right" className="w-3.5 h-3.5 ml-1" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Quick Helper Widget / SOBOT */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#8DA382] animate-pulse"></div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#3B5F8F]">Prinsip Kami</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-800">"Kekerasan psikis tidak meninggalkan luka fisik, namun melumpuhkan masa depan."</h3>
+                      <p className="text-slate-500 text-sm mt-3 leading-relaxed">
+                        Seringkali korban mengurungkan niat bercerita karena takut dicap berlebihan atau dihakimi (*victim blaming*). Kami percaya, langkah awal pemulihan dimulai dari perasaan didengarkan, divalidasi, baru kemudian diarahkan secara matang menuju penanganan profesional.
+                      </p>
+                    </div>
+                    <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-slate-50 pt-4">
+                      <div className="flex -space-x-2">
+                        <span className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center border-2 border-white text-xs">🦊</span>
+                        <span className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-white text-xs">🐻</span>
+                        <span className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center border-2 border-white text-xs">🐨</span>
+                      </div>
+                      <span className="text-xs text-slate-500 font-medium">3 Konselor Sebaya sedang bersiap mendampingi Anda tanpa mencatat nama asli Anda.</span>
+                    </div>
+                  </div>
+
+                  {/* SOBOT Quick Chat */}
+                  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[320px]">
+                    <div className="bg-[#3B5F8F] p-4 text-white flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 rounded-full bg-[#2F4D75] flex items-center justify-center text-base">🤖</div>
+                        <div>
+                          <h4 className="font-bold text-sm">SOBOT Asisten</h4>
+                          <p className="text-[10px] text-slate-200">Asisten Edukasi AI</p>
+                        </div>
+                      </div>
+                      <span className="bg-[#8DA382] text-[10px] px-2 py-0.5 rounded-full font-semibold">Online</span>
+                    </div>
+                    <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                      {chatMessages.slice(-2).map((msg, index) => (
+                        <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`p-3 rounded-2xl max-w-[85%] ${msg.sender === 'user' ? 'bg-[#3B5F8F] text-white rounded-br-none' : 'bg-slate-100 text-slate-800 rounded-bl-none'}`}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-3 border-t border-slate-100 flex items-center gap-2">
+                      <input 
+                        type="text" 
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Tanya SOBOT tentang perlindungan psikis..."
+                        className="flex-1 text-xs border border-slate-200 rounded-full px-3 py-2 focus:outline-none focus:border-[#3B5F8F]"
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendSobot()}
+                      />
+                      <button onClick={handleSendSobot} className="bg-[#3B5F8F] text-white p-2 rounded-full hover:bg-[#2F4D75] transition-colors active:scale-90">
+                        <LucideIcon name="send" className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PILAR AWARE */}
+            {activeTab === 'aware' && (
+              <div className="space-y-8 animate-fadeIn transition-all">
+                <div>
+                  <span className="bg-[#8DA382]/20 text-[#5F7355] text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-[#8DA382]/30">
+                    AWARE — Pahami & Edukasi Diri
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Membangun Sikap Empati</h2>
+                  <p className="text-slate-500 mt-1">Hancurkan stigma menyalahkan korban (victim blaming) dan temukan kunci respon yang tepat melalui pelatihan mikro interaktif.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Micro Learning Grid */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <LucideIcon name="book-open" className="w-5 h-5 text-[#8DA382]" /> Bahan Bacaan Edukasi (3-5 Menit)
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {ARTICLES.map((article) => (
+                        <div key={article.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.01] flex flex-col justify-between">
+                          <div>
+                            <span className="bg-[#8DA382]/10 text-[#5F7355] text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border border-[#8DA382]/20">{article.category}</span>
+                            <h4 className="font-bold text-slate-800 text-base mt-3 leading-snug">{article.title}</h4>
+                          </div>
+                          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span>⏱️ {article.readTime} Bacaan</span>
+                            <button className="flex items-center gap-1 hover:text-[#8DA382] transition-colors">
+                              <LucideIcon name="heart" className="w-3.5 h-3.5" /> {article.likes} Likes
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Interactive Micro Card 1 */}
+                      <div className="bg-gradient-to-br from-[#8DA382] to-[#6C8361] p-6 rounded-2xl text-white md:col-span-2 shadow-md relative overflow-hidden">
+                        <div className="absolute right-0 bottom-0 opacity-10">
+                          <LucideIcon name="sparkles" className="w-48 h-48" />
+                        </div>
+                        <span className="bg-white/20 text-slate-100 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border border-white/30">Just-World Hypothesis</span>
+                        <h4 className="font-bold text-lg mt-3">Mengapa Seseorang Menghakimi Korban?</h4>
+                        <p className="text-xs text-slate-100/90 mt-2 leading-relaxed font-light">
+                          Secara tidak sadar, banyak orang memiliki bias kognitif bahwa "hal buruk hanya menimpa orang buruk". Hal ini dinamakan hipotesis dunia yang adil, sehingga ketika terjadi kekerasan, lingkungan mencari kesalahan perilaku korban sebagai pembelaan diri agar merasa aman. Di SOULCIUS, kami melatih civitas akademika melunturkan praduga ini.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Case Simulation */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                          💡 Simulasi Respon Kasus Nyata
+                        </h3>
+                        <span className="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold border border-amber-100">Evaluasi Mandiri</span>
+                      </div>
+
+                      <div className="p-4 bg-slate-50 rounded-xl mb-4 border border-slate-150">
+                        <p className="text-sm text-slate-700 leading-relaxed font-medium">{CASE_SIMULATIONS[0].situation}</p>
+                      </div>
+
+                      <div className="space-y-3">
+                        {CASE_SIMULATIONS[0].options.map((option, idx) => (
+                          <button 
+                            key={idx}
+                            onClick={() => {
+                              setSelectedSimOption(idx);
+                              setSimScore(option.points);
+                            }}
+                            className={`w-full text-left p-4 rounded-xl text-xs transition-all duration-300 border flex items-start gap-3 transform active:scale-[0.99] ${
+                              selectedSimOption === idx 
+                                ? 'bg-[#8DA382]/10 border-[#8DA382] text-slate-900 font-semibold shadow-inner' 
+                                : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 hover:border-slate-300'
+                            }`}
+                          >
+                            <span className={`w-5 h-5 rounded-full flex items-center justify-center border font-bold ${
+                              selectedSimOption === idx ? 'bg-[#8DA382] text-white' : 'border-slate-300 text-slate-400'
+                            }`}>
+                              {String.fromCharCode(65 + idx)}
+                            </span>
+                            <span className="flex-1">{option.text}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {selectedSimOption !== null && (
+                        <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-100 animate-fadeIn">
+                          <div className="flex items-center gap-2 mb-1">
+                            <LucideIcon name="check-circle-2" className="w-5 h-5 text-[#8DA382]" />
+                            <span className="text-xs font-bold text-slate-800">Evaluasi Kompetensi Empati Anda (Skor: {simScore}/30)</span>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed mt-1">{CASE_SIMULATIONS[0].options[selectedSimOption].feedback}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Chatbot SOBOT Education */}
+                  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[520px] overflow-hidden">
+                    <div className="bg-[#8DA382] p-5 text-white flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-[#7C9372] flex items-center justify-center text-lg shadow-inner">🤖</div>
+                        <div>
+                          <h4 className="font-bold text-sm tracking-tight">SOBOT Edukasi</h4>
+                          <p className="text-[10px] text-slate-100">Konselor Edukatif AI</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span className="text-xs text-slate-100 font-medium">Aktif</span>
+                      </div>
+                    </div>
+
+                    {/* Chat Area */}
+                    <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
+                      {chatMessages.map((msg, index) => (
+                        <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`p-3.5 rounded-2xl max-w-[85%] ${
+                            msg.sender === 'user' 
+                              ? 'bg-[#8DA382] text-white rounded-br-none shadow-md' 
+                              : 'bg-slate-100 text-slate-800 rounded-bl-none border border-slate-150'
+                          }`}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Input Area */}
+                    <div className="p-4 border-t border-slate-100 flex items-center gap-3">
+                      <input 
+                        type="text" 
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Tanya: Apa peran saya sebagai peer support?"
+                        className="flex-1 text-xs border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8DA382]"
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendSobot()}
+                      />
+                      <button onClick={handleSendSobot} className="bg-[#8DA382] hover:bg-[#798C6F] text-white p-3 rounded-xl transition-all active:scale-90 shadow-sm">
+                        <LucideIcon name="send" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* LAYANAN DETECT */}
+            {activeTab === 'detect' && (
+              <div className="space-y-8 animate-fadeIn transition-all">
+                <div>
+                  <span className="bg-[#3B5F8F]/20 text-[#2D4A70] text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-[#3B5F8F]/30">
+                    DETECT — Evaluasi Indikasi Emosional
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Asesmen Risiko Kekerasan Psikis</h2>
+                  <p className="text-slate-500 mt-1">Kami menyediakan platform pengenalan rasa terintimidasi atau cemas berlebih agar Anda menyadari kondisi batin yang dialami.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Left Column: Assessment Form */}
+                  <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
+                    <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-bold text-slate-800 text-lg">Formulir Asesmen Mandiri</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">Seluruh kuesioner dilindungi standar keamanan, data lokal tidak disimpan permanen.</p>
+                      </div>
+                      <button onClick={resetAssessment} className="text-xs font-semibold text-slate-500 hover:text-[#3B5F8F] flex items-center gap-1.5 transition-colors transform active:scale-95">
+                        <LucideIcon name="refresh-cw" className="w-3.5 h-3.5" /> Bersihkan
+                      </button>
+                    </div>
+
+                    <div className="space-y-6">
+                      {[
+                        { id: 'q1', text: 'Seberapa sering Anda merasa cemas, takut, atau terancam karena perkataan/tindakan seseorang di lingkungan kampus?' },
+                        { id: 'q2', text: 'Apakah Anda merasa ragu/menyalahkan diri sendiri atas perlakuan buruk atau pelecehan emosional yang Anda terima?' },
+                        { id: 'q3', text: 'Seberapa sering rekan atau lingkungan sekitar Anda mengabaikan curhatan Anda dan menganggapnya "berlebihan/sensitif"?' },
+                        { id: 'q4', text: 'Apakah Anda merasa kehilangan rasa aman untuk melakukan aktivitas akademis sehari-hari akibat tekanan emosional?' },
+                        { id: 'q5', text: 'Apakah perlakuan buruk tersebut mempengaruhi kesehatan fisik Anda (misalnya: sulit tidur, kehilangan nafsu makan, detak jantung cepat)?' }
+                      ].map((q, idx) => (
+                        <div key={q.id} className="space-y-3">
+                          <p className="text-sm font-semibold text-slate-700 leading-relaxed"><span className="text-[#3B5F8F] mr-1">{idx+1}.</span> {q.text}</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {[
+                              { text: 'Tidak Pernah', value: 0 },
+                              { text: 'Jarang', value: 1 },
+                              { text: 'Sering', value: 2 },
+                              { text: 'Sangat Sering', value: 3 },
+                            ].map((opt) => (
+                              <button
+                                key={opt.value}
+                                onClick={() => handleAssessmentAnswer(q.id, opt.value)}
+                                className={`p-3 rounded-xl text-xs font-semibold text-center transition-all duration-300 border transform active:scale-95 ${
+                                  assessmentAnswers[q.id] === opt.value
+                                    ? 'bg-[#3B5F8F] border-[#3B5F8F] text-white shadow-md font-bold'
+                                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
+                                }`}
+                              >
+                                {opt.text}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100">
+                      <button 
+                        onClick={calculateRisk}
+                        className="w-full bg-[#3B5F8F] hover:bg-[#2F4D75] text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-[#3B5F8F]/10 flex items-center justify-center gap-2 transform active:scale-95"
+                      >
+                        Mulai Kalkulasi Risiko <LucideIcon name="chevron-right" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Dynamic Result / SOBOT Recommendation */}
+                  <div className="space-y-6">
+                    
+                    {/* Result Card */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm text-center">
+                      <h3 className="font-bold text-slate-800 text-base mb-4">Hasil Identifikasi Risiko</h3>
+                      
+                      {!assessmentFinished ? (
+                        <div className="py-12 flex flex-col items-center justify-center text-slate-400">
+                          <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100">
+                            <LucideIcon name="search" className="w-7 h-7 text-[#3B5F8F]" />
+                          </div>
+                          <p className="text-xs font-semibold">Isi seluruh kuesioner mandiri di samping untuk mengetahui tingkat kenyamanan emosional Anda.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-6 animate-fadeIn transition-opacity duration-300">
+                          {/* Risk Badge */}
+                          <div className="inline-block px-8 py-5 rounded-3xl border border-slate-150 text-center bg-slate-50/50">
+                            <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Tingkat Risiko Terdeteksi</p>
+                            <span className={`text-4xl font-extrabold block mt-2 uppercase tracking-wide ${
+                              assessmentRisk === 'Tinggi' ? 'text-rose-600' : assessmentRisk === 'Sedang' ? 'text-amber-600' : 'text-[#8DA382]'
+                            }`}>
+                              {assessmentRisk}
+                            </span>
+                          </div>
+
+                          {/* Explanation Text */}
+                          <div className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left">
+                            {assessmentRisk === 'Tinggi' && (
+                              <p>
+                                <strong>Status Waspada!</strong> Anda mengalami tekanan emosional yang signifikan dan membutuhkan perhatian khusus. Sistem kami menyarankan Anda agar tidak memendam sendiri; silakan beralih ke <strong>Jalur PROTECT</strong> untuk penanganan resmi atau klik tombol darurat jika berada di bawah ancaman.
+                              </p>
+                            )}
+                            {assessmentRisk === 'Sedang' && (
+                              <p>
+                                Ada indikasi stres psikis ringan hingga sedang yang Anda pikul. Anda berada di tempat yang aman. Disarankan melakukan konseling informal secara rahasia bersama kawan sejawat di menu <strong>Ruang SUPPORT</strong>.
+                              </p>
+                            )}
+                            {assessmentRisk === 'Rendah' && (
+                              <p>
+                                Kondisi emosi Anda terbilang relatif stabil. Meskipun demikian, rasa tidak nyaman sekecil apa pun di dalam diri Anda adalah nyata. Anda selalu dapat membaca modul kesehatan mental kami di menu <strong>Langkah RECOVERY</strong>.
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Next Step Action Button */}
+                          <div className="pt-2">
+                            {assessmentRisk === 'Tinggi' ? (
+                              <button 
+                                onClick={() => setActiveTab('protect')}
+                                className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md active:scale-95"
+                              >
+                                <LucideIcon name="shield" className="w-4 h-4" /> Rujuk ke Satgas PPK / Psikolog
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => setActiveTab('support')}
+                                className="w-full bg-[#3B5F8F] hover:bg-[#2F4D75] text-white font-bold py-3.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md active:scale-95"
+                              >
+                                <LucideIcon name="message-square" className="w-4 h-4" /> Hubungi Sobat Sebaya
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* SOBOT Reflection Widget */}
+                    <div className="bg-[#1F3452] text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
+                      <div className="absolute right-0 top-0 opacity-10">
+                        <LucideIcon name="heart" className="w-32 h-32" />
+                      </div>
+                      <div className="relative z-10 flex items-start gap-4">
+                        <div className="text-3xl">🤖</div>
+                        <div>
+                          <h4 className="font-extrabold text-sm tracking-wide">SOBOT Refleksi</h4>
+                          <p className="text-xs text-slate-300 mt-2 leading-relaxed font-light">
+                            "Evaluasi ini bukanlah vonis kesehatan mental mutlak, melainkan sarana pemantik agar Anda mau divalidasi dan diakui perasaannya sebelum melakukan langkah formal selanjutnya."
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* RUANG SUPPORT */}
+            {activeTab === 'support' && (
+              <div className="space-y-8 animate-fadeIn transition-all">
+                <div>
+                  <span className="bg-purple-100 text-purple-800 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-purple-200">
+                    SUPPORT — Pendampingan Sejawat
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Konselor Mahasiswa (Sobat Sebaya)</h2>
+                  <p className="text-slate-500 mt-1">Dapatkan telinga hangat dan bebas penilaian. Seluruh konsultasi dapat diatur secara berjadwal luring maupun anonim penuh lewat chat instan.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Left Column: Peer Support Selection */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <h3 className="text-lg font-bold text-slate-800">Daftar Pendamping Aktif</h3>
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xs text-slate-500">Mode Anonim:</span>
+                        <button 
+                          onClick={() => setIsAnonymous(!isAnonymous)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                            isAnonymous ? 'bg-[#8DA382]' : 'bg-slate-300'
+                          }`}
+                        >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
+                            isAnonymous ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </button>
+                        <span className="text-xs font-bold text-slate-700">{isAnonymous ? 'Aktif (Nama Asli Anda Disembunyikan)' : 'Mati'}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {SOBAT_SEBAYA.map((peer) => (
+                        <div 
+                          key={peer.id} 
+                          className={`bg-white rounded-2xl border p-5 transition-all duration-300 flex flex-col justify-between cursor-pointer transform hover:scale-[1.02] ${
+                            selectedPeer?.id === peer.id 
+                              ? 'border-[#3B5F8F] ring-2 ring-[#3B5F8F]/15 shadow-md' 
+                              : 'border-slate-100 hover:border-slate-300 shadow-sm'
+                          }`}
+                          onClick={() => {
+                            setSelectedPeer(peer);
+                            setIsChattingWithPeer(true);
+                          }}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-3xl">{peer.avatar}</span>
+                              <span className="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">{peer.badge}</span>
+                            </div>
+                            <h4 className="font-bold text-slate-800 text-sm leading-tight">{peer.name}</h4>
+                            <p className="text-[10px] text-[#3B5F8F] font-bold mt-1 uppercase">{peer.major}</p>
+                            <p className="text-xs text-slate-500 mt-2.5 leading-relaxed line-clamp-4">{peer.bio}</p>
+                          </div>
+                          <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+                            <span className="text-[10px] text-slate-400 font-semibold">🗣️ {peer.casesSolved} Sesi Selesai</span>
+                            <span className="text-xs font-bold text-[#3B5F8F] hover:text-[#2D4A70] transition-colors flex items-center gap-0.5">
+                              Hubungi <LucideIcon name="chevron-right" className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Match Scheduling Section */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                      <h3 className="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <LucideIcon name="calendar" className="w-5 h-5 text-purple-600" /> Atur Konseling Offline / Online Berjadwal
+                      </h3>
+                      <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+                        Sistem akan mencocokkan jadwal kosong Anda dengan kalender akademis Sobat Sebaya. Silakan tentukan opsi pendampingan ternyaman Anda.
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pilih Pendamping</label>
+                          <select 
+                            className="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-purple-500 bg-slate-50 font-medium"
+                            onChange={(e) => {
+                              const peer = SOBAT_SEBAYA.find(p => p.id === e.target.value);
+                              if(peer) setSelectedPeer(peer);
+                            }}
+                            value={selectedPeer?.id || ''}
+                          >
+                            <option value="">-- Cari Sobat Sebaya --</option>
+                            {SOBAT_SEBAYA.map(p => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pilih Tanggal</label>
+                          <input 
+                            type="date" 
+                            value={bookingDate}
+                            onChange={(e) => setBookingDate(e.target.value)}
+                            className="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-purple-500 bg-slate-50"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Tentukan Waktu</label>
+                          <input 
+                            type="time" 
+                            value={bookingTime}
+                            onChange={(e) => setBookingTime(e.target.value)}
+                            className="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-purple-500 bg-slate-50"
+                          />
+                        </div>
+                      </div>
+
+                      {isBooked ? (
+                        <div className="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 animate-fadeIn transition-all">
+                          <div className="flex items-center gap-2 mb-1">
+                            <LucideIcon name="check-circle-2" className="w-4 h-4 text-emerald-600" />
+                            <span className="text-xs font-bold text-emerald-800">Sesi Konseling Berhasil Terjadwal!</span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 leading-relaxed">Jadwal Anda bersama {selectedPeer?.name || 'Sobat Sebaya'} sudah dikonfirmasi untuk tanggal {bookingDate} pukul {bookingTime}. Kami telah mengirimkan detail tempat rahasia/tautan rapat ke alamat email terenkripsi Anda.</p>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={handleBooking}
+                          className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-all text-xs transform active:scale-95 shadow-md"
+                        >
+                          Konfirmasi Jadwal Pendampingan
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Active Interactive Chat Room */}
+                  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[520px] overflow-hidden">
+                    {!isChattingWithPeer ? (
+                      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-slate-400">
+                        <span className="text-4xl mb-4">💬</span>
+                        <h4 className="font-bold text-slate-700 text-sm">Ruang Obrolan Instan</h4>
+                        <p className="text-xs mt-1 leading-relaxed px-4">Pilih kawan pendamping aktif di samping untuk langsung berkonsultasi secara anonim tanpa mencatatkan identitas asli Anda.</p>
+                      </div>
+                    ) : (
+                      <div className="flex-grow flex flex-col h-full animate-fadeIn transition-all duration-300">
+                        <div className="bg-[#3B5F8F] p-5 text-white flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">{selectedPeer.avatar}</span>
+                            <div>
+                              <h4 className="font-bold text-sm tracking-tight">{selectedPeer.name}</h4>
+                              <p className="text-[10px] text-slate-200 font-medium">
+                                {isAnonymous ? '👤 Mode Anonim Aktif (Terenkripsi)' : '👤 Sesi Identitas Terbuka'}
+                              </p>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => setIsChattingWithPeer(false)} 
+                            className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-all active:scale-95 font-semibold"
+                          >
+                            Selesai
+                          </button>
+                        </div>
+
+                        {/* Chat Messages */}
+                        <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
+                          {peerChatMessages.map((msg, index) => (
+                            <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`p-3.5 rounded-2xl max-w-[85%] ${
+                                msg.sender === 'user' 
+                                  ? 'bg-[#3B5F8F] text-white rounded-br-none shadow-sm' 
+                                  : 'bg-slate-150 text-slate-800 rounded-bl-none border border-slate-100'
+                              }`}>
+                                {msg.text}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Input Chat */}
+                        <div className="p-4 border-t border-slate-100 flex items-center gap-3">
+                          <input 
+                            type="text" 
+                            value={peerInput}
+                            onChange={(e) => setPeerInput(e.target.value)}
+                            placeholder="Ketik rahasia Anda di sini secara aman..."
+                            className="flex-1 text-xs border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500"
+                            onKeyDown={(e) => e.key === 'Enter' && handleSendPeer()}
+                          />
+                          <button onClick={handleSendPeer} className="bg-[#3B5F8F] hover:bg-[#2F4D75] text-white p-3 rounded-xl transition-all active:scale-90">
+                            <LucideIcon name="send" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* JALUR PROTECT */}
+            {activeTab === 'protect' && (
+              <div className="space-y-8 animate-fadeIn transition-all">
+                <div>
+                  <span className="bg-rose-100 text-rose-800 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-rose-200">
+                    PROTECT — Jaminan Perlindungan & Hukum
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Sistem Rujukan & Pengaduan Resmi</h2>
+                  <p className="text-slate-500 mt-1">Kami mendampingi proses pengaduan Anda tanpa hambatan administratif yang rumit, menghubungkan Anda dengan Satgas PPK atau Psikolog klinis.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Emergency Pathway Banner */}
+                  <div className="lg:col-span-3 bg-gradient-to-br from-[#3B5F8F] to-rose-950 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden border border-rose-800/20">
+                    <div className="absolute right-0 top-0 opacity-10 transform translate-x-6 -translate-y-6">
+                      <LucideIcon name="alert-triangle" className="w-64 h-64" />
+                    </div>
+                    <div className="relative z-10 max-w-3xl">
+                      <span className="bg-[#8DA382]/30 text-slate-100 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-widest border border-white/20">Emergency Pathway</span>
+                      <h3 className="text-2xl md:text-3xl font-bold mt-4">Krisis Kesehatan Mental / Ancaman Kekerasan Aktif?</h3>
+                      <p className="text-slate-100 text-xs md:text-sm mt-3 leading-relaxed font-light">
+                        Sistem SOULCIUS langsung mendeteksi ancaman bahaya fisik, tindakan intimidasi ekstrem, maupun depresi risiko tinggi. Anda berhak melewatkan semua tahap konsultasi dan mengakses pertolongan langsung dari pihak berwenang sekarang juga.
+                      </p>
+                      <div className="mt-6 flex flex-wrap gap-4">
+                        <a href="tel:112" className="bg-rose-600 hover:bg-rose-700 transition-all font-bold px-6 py-3.5 rounded-xl text-xs flex items-center gap-2 shadow-md transform active:scale-95 text-white">
+                          <LucideIcon name="phone-call" className="w-4 h-4" /> Hubungi Layanan Darurat Kampus
+                        </a>
+                        <button 
+                          onClick={() => triggerNotification('success', 'Aduan Prioritas', 'Laporan darurat prioritas Anda telah masuk ke jajaran Satgas PPK terenkripsi. Sesi evakuasi aman disiapkan.')}
+                          className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl text-xs border border-white/30 transition-all transform active:scale-95"
+                        >
+                          Ajukan Perlindungan Darurat PPK
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Referral System Breakdown */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <LucideIcon name="shield" className="w-5 h-5 text-rose-700" /> Struktur Alur Proteksi Formal
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      
+                      {/* Referral Card 1 */}
+                      <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 transform hover:scale-[1.01]">
+                        <div>
+                          <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-700 mb-4 border border-purple-100">
+                            <LucideIcon name="user" className="w-5 h-5" />
+                          </div>
+                          <h4 className="font-bold text-slate-800 text-base leading-snug">Jalur Medis: Konselor Profesional / Psikolog</h4>
+                          <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                            Ditujukan bagi civitas akademika yang memikul gejala trauma mendalam, gangguan tidur konstan, atau gangguan kecemasan tinggi akibat perilaku buruk lingkungan.
+                          </p>
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-slate-100">
+                          <span className="text-xs font-bold text-[#3B5F8F] flex items-center gap-1 cursor-pointer hover:underline">
+                            Pelajari Layanan Klinis <LucideIcon name="chevron-right" className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Referral Card 2 */}
+                      <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 transform hover:scale-[1.01]">
+                        <div>
+                          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-700 mb-4 border border-rose-100">
+                            <LucideIcon name="shield" className="w-5 h-5" />
+                          </div>
+                          <h4 className="font-bold text-slate-800 text-base leading-snug">Jalur Hukum: Satgas PPK Kampus</h4>
+                          <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                            Pengaduan resmi untuk pelecehan emosional berat, pemerasan verbal, intimidasi akademik, maupun tindakan diskriminatif guna mendapatkan sanksi administratif dan perlindungan hukum tetap.
+                          </p>
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-slate-100">
+                          <span className="text-xs font-bold text-rose-700 flex items-center gap-1 cursor-pointer hover:underline">
+                            Ajukan Pengaduan Hukum Resmi <LucideIcon name="chevron-right" className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Info Box */}
+                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex gap-4">
+                      <div className="text-2xl text-slate-400">ℹ️</div>
+                      <div>
+                        <h4 className="font-bold text-slate-800 text-xs">Pentingnya Validasi di Awal</h4>
+                        <p className="text-slate-500 text-[11px] leading-relaxed mt-1">
+                          Platform SOULCIUS tidak langsung memaksa korban melapor ke Satgas PPK demi menjaga kesiapan mental korban. Kami meyakini bahwa perlindungan terbaik didasari kesediaan penuh korban setelah divalidasi oleh Sobat Sebaya.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Appointment Booking Simulation */}
+                  <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-base">Rekomendasi Rujukan Instan</h3>
+                      <p className="text-xs text-slate-400 mt-1">Gunakan formulir ini jika Anda ingin sistem membuatkan nomor rujukan formal.</p>
+                    </div>
+
+                    <div className="space-y-4 text-xs">
+                      <div>
+                        <label className="block text-slate-500 font-bold mb-1.5">PILIH JALUR RUJUKAN</label>
+                        <select className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-rose-500 bg-slate-50 font-medium">
+                          <option>Satgas PPK - Divisi Hukum & Mediasi</option>
+                          <option>Layanan Psikologi - UPT Konseling Mahasiswa</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-500 font-bold mb-1.5">CATATAN PENDAMPINGAN (OPTIONAL)</label>
+                        <textarea 
+                          rows="3" 
+                          placeholder="Masukkan ringkasan dari Sobat Sebaya Anda (jika ada)..."
+                          className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-rose-500 bg-slate-50"
+                        />
+                      </div>
+
+                      <div className="p-4 bg-rose-50/50 rounded-xl border border-rose-100">
+                        <p className="text-[10px] text-rose-800 font-bold leading-relaxed">
+                          ⚠️ Kerahasiaan Anda dijamin penuh. Informasi ini hanya akan dibagikan kepada spesialis/tim profesional terpilih setelah persetujuan Anda.
+                        </p>
+                      </div>
+
+                      <button 
+                        onClick={handleTicketGeneration}
+                        className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-rose-100 transform active:scale-95"
+                      >
+                        Klaim Tiket Rujukan Sekarang
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* LANGKAH RECOVERY */}
+            {activeTab === 'recovery' && (
+              <div className="space-y-8 animate-fadeIn transition-all">
+                <div>
+                  <span className="bg-teal-100 text-teal-800 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider border border-teal-200">
+                    RECOVERY — Pemulihan & Pemberdayaan Mandiri
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mt-3">Langkah Lanjutan & Komunitas</h2>
+                  <p className="text-slate-500 mt-1">Kami mendampingi proses regenerasi mental Anda demi menjamin tidak ada civitas akademika yang dibiarkan pulih sendirian.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Left Column: Mood/Recovery Tracker & Resource Center */}
+                  <div className="lg:col-span-2 space-y-8">
+                    
+                    {/* Recovery Check-in */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-slate-800 text-base flex items-center gap-1.5">
+                          <LucideIcon name="activity" className="w-5 h-5 text-teal-600" /> Recovery Check-In Harian
+                        </h3>
+                        <span className="text-xs text-slate-400 font-semibold">Diperbarui Berkala</span>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Bagaimana kondisi kebugaran batin dan emosi Anda saat ini? Isi jurnal kilat di bawah untuk memantau grafik pemulihan pribadi Anda.
+                      </p>
+
+                      <div className="grid grid-cols-5 gap-3 pt-2">
+                        {[
+                          { emoji: '😭', label: 'Terguncang', val: 1 },
+                          { emoji: '😔', label: 'Cemas/Sedih', val: 2 },
+                          { emoji: '😐', label: 'Biasa Saja', val: 3 },
+                          { emoji: '🙂', label: 'Cukup Baik', val: 4 },
+                          { emoji: '😊', label: 'Sangat Baik', val: 5 },
+                        ].map((m) => (
+                          <button 
+                            key={m.val}
+                            onClick={() => {
+                              setDailyMood(m.val);
+                              triggerNotification(
+                                'success', 
+                                'Mood Check-In Tercatat', 
+                                'Terima kasih telah berbagi dengan diri Anda sendiri hari ini! Grafik pemulihan Anda menunjukkan stabilitas yang baik.'
+                              );
+                            }}
+                            className={`p-3 rounded-2xl border transition-all duration-300 text-center flex flex-col items-center justify-center gap-1 transform active:scale-95 ${
+                              dailyMood === m.val 
+                                ? 'bg-teal-50 border-teal-500 text-teal-800 font-bold scale-[1.05] shadow-inner' 
+                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
+                            }`}
+                          >
+                            <span className="text-2xl">{m.emoji}</span>
+                            <span className="text-[9px] block leading-none font-bold mt-1">{m.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Resource Center */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <LucideIcon name="book-open" className="w-5 h-5 text-[#8DA382]" /> Perpustakaan Literasi Mandiri
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { title: 'Jurnal Afirmasi Positif untuk Membangun Rasa Percaya Diri', type: 'Self Growth', downloads: 142 },
+                          { title: 'Panduan Mengelola Post-Traumatic Stress Disorder (PTSD) Ringan', type: 'Clinical Mental Health', downloads: 98 },
+                        ].map((item, idx) => (
+                          <div key={idx} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 transform hover:scale-[1.01]">
+                            <div>
+                              <span className="bg-slate-100 text-slate-600 text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border border-slate-200">{item.type}</span>
+                              <h4 className="font-bold text-slate-800 text-sm mt-2.5 leading-snug">{item.title}</h4>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-500">
+                              <span>📥 {item.downloads} diunduh</span>
+                              <span 
+                                onClick={() => triggerNotification('success', 'Buku Saku Diunduh', 'Unduhan buku saku dimulai. Selamat membaca!')}
+                                className="text-[#3B5F8F] font-bold cursor-pointer hover:underline"
+                              >
+                                Unduh Buku Saku
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Right Column: Moderated Support Community (Anonymous Forum) */}
+                  <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col h-[520px] justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
+                        <LucideIcon name="users" className="w-5 h-5 text-[#3B5F8F]" /> Komunitas Aman (Anonim)
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">Dapatkan kekuatan dari kesaksian sesama. Seluruh kiriman diproses secara rahasia dan termoderasi ketat.</p>
+                      
+                      {/* Share Feed Area */}
+                      <div className="mt-4 space-y-3 h-[300px] overflow-y-auto pr-1">
+                        {communityPosts.map((post) => (
+                          <div key={post.id} className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] transition-all duration-300">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-bold text-slate-700">{post.author}</span>
+                              <span className="text-slate-400">{post.time}</span>
+                            </div>
+                            <p className="text-slate-600 leading-relaxed font-light">{post.content}</p>
+                            <div className="mt-2.5 flex items-center gap-1 text-slate-400 hover:text-[#8DA382] cursor-pointer transition-colors">
+                              <LucideIcon name="thumbs-up" className="w-3.5 h-3.5" /> <span className="font-semibold">{post.likes}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Post Input Box */}
+                    <div className="pt-4 border-t border-slate-100 text-xs">
+                      <textarea 
+                        value={newPostText}
+                        onChange={(e) => setNewPostText(e.target.value)}
+                        rows="2" 
+                        placeholder="Tulis pesan penyemangat atau kesaksian anonim Anda..."
+                        className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-teal-500 bg-slate-50 font-medium"
+                      />
+                      <button 
+                        onClick={handleAddPost}
+                        className="mt-2 w-full bg-[#3B5F8F] hover:bg-[#2F4D75] text-white font-bold py-3 rounded-xl transition-all transform active:scale-95 shadow-md"
+                      >
+                        Kirim ke Komunitas (Anonim)
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+          </main>
+
+          {/* FOOTER */}
+          <footer className="bg-white border-t border-slate-150 mt-12 py-10 text-center text-xs text-slate-400">
+            <div className="max-w-7xl mx-auto px-4 space-y-3">
+              <div className="flex justify-center items-center">
+                <SoulciusLogo className="w-10 h-10 filter grayscale opacity-60" />
+              </div>
+              <p className="font-extrabold text-[#3B5F8F] uppercase tracking-widest mt-2">
+                SOULCIUS — Kampanye Pengurangan Dampak Perilaku Menyalahkan Korban (Victim Blaming)
+              </p>
+              <p className="text-slate-400 font-medium">© 2026 SOULCIUS Project. Menjaga Kesejahteraan Mental & Keamanan Jiwa Akademika Universitas.</p>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
